@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tennis Story — Écrivez votre légende</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Literata:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0f2e1f; --bg-deep: #0a2116; --card: #f2f0e2; --card-line: #e3ded0;
+    --ink: #142118; --ink-soft: #4a5a4f; --accent: #d7e866; --accent-ink: #2a3010;
+    --clay: #c1443b; --gold: #d9a441; --money: #3f8f5c; --line: #3e6b4f; --line-bright: #5c9270;
+    --font-display: 'Bebas Neue', sans-serif; --font-body: 'Literata', serif; --font-mono: 'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{ background: radial-gradient(ellipse at top, var(--bg) 0%, var(--bg-deep) 70%); color: var(--card); font-family: var(--font-body); min-height:100vh; display:flex; align-items:flex-start; justify-content:center; padding: 32px 16px 64px; }
+  .app{ width:100%; max-width:900px; }
+  .court-rule{ height:2px; background: repeating-linear-gradient(90deg, var(--line-bright) 0 10px, transparent 10px 18px); opacity:.55; margin: 6px 0 26px; }
+  .brand{ display:flex; align-items:baseline; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+  .brand h1{ font-family: var(--font-display); letter-spacing: 1.5px; font-size: clamp(32px, 6vw, 52px); margin:0; color: var(--card); }
+  .brand h1 span{ color: var(--accent); }
+  .brand .tag{ font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--line-bright); }
+
+  .panel{ background: var(--card); color: var(--ink); border-radius: 4px; padding: 28px 30px; margin-top: 22px; box-shadow: 0 18px 40px rgba(0,0,0,.35); position: relative; }
+  .panel::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:5px; background: var(--accent); border-radius: 4px 0 0 4px; }
+  .panel.tactical::before{ background: var(--clay); }
+  .panel h2{ font-family: var(--font-display); font-size: 26px; letter-spacing: .5px; margin: 0 0 6px; }
+  .lede{ color: var(--ink-soft); font-size: 14px; margin-bottom: 20px; }
+
+  .start-copy{ font-size: 16px; line-height:1.6; color: var(--ink-soft); max-width: 62ch;}
+  .btn{ font-family: var(--font-mono); font-size: 13px; letter-spacing: .5px; text-transform: uppercase; background: var(--accent); color: var(--accent-ink); border: none; padding: 13px 22px; border-radius: 3px; cursor: pointer; font-weight: 600; transition: transform .12s ease, box-shadow .12s ease; }
+  .btn:hover{ transform: translateY(-1px); box-shadow: 0 6px 14px rgba(215,232,102,.35); }
+  .btn:active{ transform: translateY(0); }
+  .btn.secondary{ background: transparent; color: var(--ink); border: 1.5px solid var(--ink); }
+  .btn.secondary:hover{ box-shadow:none; background: var(--ink); color: var(--card); }
+  .btn:disabled{ opacity:.4; cursor: not-allowed; transform:none; box-shadow:none;}
+
+  .field{ margin-bottom: 18px; }
+  .field label{ display:block; font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--ink-soft); margin-bottom: 7px; }
+  .field input[type=text], .field input[type=email]{ width:100%; padding: 11px 12px; border: 1.5px solid var(--card-line); border-radius: 3px; font-family: var(--font-body); font-size: 15px; background: #fff; color: var(--ink); }
+  .field input.invalid{ border-color: var(--clay); }
+  .field .err{ font-size:11px; color: var(--clay); margin-top:5px; }
+  .choice-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 10px; }
+  .flag-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(96px,1fr)); gap: 8px; max-height: 260px; overflow-y:auto; padding: 4px 2px; border: 1.5px solid var(--card-line); border-radius: 4px; background:#fff; }
+  .flag-chip{ border: 1.5px solid var(--card-line); background: #fff; padding: 8px 6px; border-radius: 3px; cursor: pointer; text-align:center; font-size:12px; transition: border-color .12s ease, background .12s ease; }
+  .flag-chip .fl{ font-size:22px; display:block; margin-bottom:3px; }
+  .flag-chip.selected{ border-color: var(--ink); background: #eae6d4; }
+  .flag-chip:hover{ border-color: var(--ink); }
+  .chip{ border: 1.5px solid var(--card-line); background: #fff; padding: 11px 12px; border-radius: 3px; cursor: pointer; font-size: 14px; text-align:left; font-family: var(--font-body); transition: border-color .12s ease, background .12s ease; }
+  .chip strong{ display:block; font-size:14px; }
+  .chip small{ color: var(--ink-soft); font-size:12px; display:block; margin-top:2px; }
+  .chip.selected{ border-color: var(--ink); background: #eae6d4; }
+  .chip:hover{ border-color: var(--ink); }
+
+  .row-2{ display:grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width:560px){ .row-2{ grid-template-columns: 1fr; } }
+
+  .consent-row{ display:flex; align-items:flex-start; gap:10px; background:#eae6d4; padding:12px 14px; border-radius:4px; }
+  .consent-row input{ margin-top:3px; width:16px; height:16px; }
+  .consent-row .c-text{ font-size:13px; color: var(--ink-soft); line-height:1.5; }
+
+  .scoreboard{ background: var(--bg-deep); border: 1px solid var(--line); border-radius: 4px; padding: 16px 18px; margin-top: 22px; display:flex; flex-wrap:wrap; gap: 18px 28px; align-items:center; font-family: var(--font-mono); }
+  .sb-item{ min-width: 70px; }
+  .sb-item .v{ font-family: var(--font-display); font-size: 26px; color: var(--accent); line-height:1; }
+  .sb-item .v.money{ color: var(--money); }
+  .sb-item .l{ font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--line-bright); margin-top:3px;}
+  .coach-line{ font-size:11px; color: var(--line-bright); flex-basis:100%; }
+  .coach-line b{ color: var(--card); }
+  .stat-bars{ margin-top: 16px; display:grid; gap: 9px; flex-basis:100%; }
+  .stat-row{ display:grid; grid-template-columns: 90px 1fr 34px 40px; align-items:center; gap: 10px; }
+  .stat-row .label{ font-family: var(--font-mono); font-size: 11px; color: var(--line-bright); text-transform:uppercase; letter-spacing:.5px;}
+  .stat-track{ height:6px; background: rgba(255,255,255,.08); border-radius:4px; overflow:hidden; }
+  .stat-fill{ height:100%; background: linear-gradient(90deg, var(--line-bright), var(--accent)); transition: width .5s ease; }
+  .stat-row .num{ font-family: var(--font-mono); font-size:11px; color:var(--card); text-align:right; }
+  .stat-row .delta{ font-family: var(--font-mono); font-size:11px; text-align:right; }
+  .delta.up{ color: var(--accent); }
+  .delta.down{ color: var(--clay); }
+
+  .season-tag{ font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--clay); margin-bottom: 4px; display:block; }
+  .beat-progress{ display:flex; gap:6px; margin-bottom:12px; }
+  .beat-dot{ width:26px; height:5px; border-radius:3px; background: var(--card-line); }
+  .beat-dot.done{ background: var(--line-bright); }
+  .beat-dot.active{ background: var(--clay); }
+  .headline{ font-family: var(--font-display); font-size: 24px; letter-spacing:.3px; margin: 2px 0 14px; }
+  .narrative{ font-size: 16px; line-height: 1.7; color: var(--ink); }
+  .opponent-card{ margin-top:14px; padding:12px 14px; background:#eae6d4; border-radius:4px; font-family: var(--font-mono); font-size:12px; display:flex; gap:18px; flex-wrap:wrap; }
+  .season-meta{ margin-top:16px; padding-top:16px; border-top: 1px dashed var(--card-line); display:flex; flex-wrap:wrap; gap: 8px 18px; font-family: var(--font-mono); font-size:12px; color: var(--ink-soft); }
+  .season-meta b{ color: var(--ink); }
+  .titles-won{ margin-top:10px; }
+  .title-pill{ display:inline-block; background: var(--accent); color: var(--accent-ink); font-family: var(--font-mono); font-size:11px; padding: 4px 9px; border-radius: 20px; margin: 3px 6px 0 0; font-weight:600; }
+  .title-pill.gold{ background: var(--gold); }
+  .title-pill.warn{ background: var(--clay); color:#fff; }
+  .title-pill.money{ background: var(--money); color:#fff; }
+
+  .choices{ margin-top: 22px; display:grid; gap: 10px; }
+  .choice-card{ border: 1.5px solid var(--card-line); border-radius: 4px; padding: 14px 16px; cursor:pointer; background:#fff; transition: border-color .12s ease, transform .12s ease; }
+  .choice-card:hover{ border-color: var(--ink); transform: translateX(3px); }
+  .choice-card .c-tag{ font-family: var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:.5px; color: var(--ink-soft); margin-bottom:2px; display:flex; justify-content:space-between; }
+  .choice-card .c-label{ font-weight:600; font-size:15px; margin-bottom:3px; }
+  .choice-card .c-desc{ font-size:13px; color: var(--ink-soft); line-height:1.4; }
+  .choice-card.risky{ border-color: var(--clay); }
+  .choice-card.risky .c-tag{ color: var(--clay); }
+  .choice-card.money{ border-color: var(--money); }
+  .choice-card.disabled{ opacity:.45; cursor:not-allowed; }
+  .choice-card.disabled:hover{ transform:none; border-color: var(--card-line); }
+  .cost-tag{ font-weight:700; color: var(--money); }
+  .impact-badge{ font-family: var(--font-mono); font-size:11px; color: var(--money); margin-top:6px; font-weight:600; }
+  .recap-stats{ display:grid; grid-template-columns: repeat(auto-fit, minmax(120px,1fr)); gap:12px; margin: 18px 0; padding: 16px; background: var(--bg-deep); border-radius:4px; border: 1px solid var(--line); }
+  .recap-stat{ text-align:center; }
+  .recap-stat .rv{ font-family: var(--font-display); font-size:22px; color: var(--accent); }
+  .recap-stat .rv.win{ color: var(--money); }
+  .recap-stat .rv.loss{ color: var(--clay); }
+  .recap-stat .rl{ font-family: var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:.5px; color: var(--line-bright); margin-top:2px; }
+  .rank-arrow{ font-size:12px; color: var(--ink-soft); }
+
+  .loading{ display:flex; align-items:center; gap:12px; padding: 30px 0; color: var(--ink-soft); font-family: var(--font-mono); font-size:13px; min-height: 24px; }
+  .spinner{ width:18px; height:18px; border-radius:50%; border: 2.5px solid var(--card-line); border-top-color: var(--clay); animation: spin .8s linear infinite; flex-shrink:0; }
+  @keyframes spin{ to{ transform: rotate(360deg); } }
+
+  .error-box{ background:#f7ded9; border:1px solid var(--clay); color:#7a231c; padding:14px 16px; border-radius:4px; font-size:14px; margin-top:16px;}
+  .footer-actions{ margin-top: 22px; display:flex; gap:10px; flex-wrap:wrap; }
+  .legend-summary{ font-size:16px; line-height:1.7; }
+  .end-titles{ margin-top: 18px; }
+  ::selection{ background: var(--accent); color: var(--accent-ink); }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="brand">
+    <h1>Tennis <span>Story</span></h1>
+    <div class="tag">Tennis &amp; Padel — joueurs et adversaires fictifs</div>
+  </div>
+  <div class="court-rule"></div>
+  <div id="root"></div>
+</div>
+
+<script>
+const root = document.getElementById('root');
+
+// ---------------- Fictional name pools (NOT real players) ----------------
+const FIRST_NAMES = ['Mateo','Lars','Kenji','Dario','Noel','Ivo','Theo','Rafi','Yannick','Bruno','Milan','Andrei','Tomas','Aleksander','Diego','Kian','Sander','Marco','Emil','Tarek','Elias','Hugo','Nikolai','Adem','Jonas'];
+const SURNAMES = ['Verhoeven','Kaczmarek','Oyelaran','Sundqvist','Marchetti','Brennan','Vidal','Halvorsen','Takahara','Roussel','Kowalczyk','Berger','Novaković','Fontaine','Lindqvist','Amaral','Delacroix','Steiner','Okonkwo','Bianchi'];
+const FIRST_NAMES_W = ['Elena','Nina','Saskia','Miho','Ines','Petra','Amara','Camille','Ingrid','Yara','Talia','Lucia','Anouk','Freya','Naomi','Sonja','Dara','Mira','Alessia','Kaia'];
+function randomOpponentName(circuit){
+  const pool = circuit === 'WTA' ? FIRST_NAMES_W : FIRST_NAMES;
+  return `${pool[Math.floor(Math.random()*pool.length)]} ${SURNAMES[Math.floor(Math.random()*SURNAMES.length)]}`;
+}
+
+// ---------------- Flags (top nationalities ATP/WTA-inspired) ----------------
+const FLAGS = [
+  {code:'FR',flag:'🇫🇷',label:'France'},{code:'ES',flag:'🇪🇸',label:'Espagne'},{code:'IT',flag:'🇮🇹',label:'Italie'},
+  {code:'RS',flag:'🇷🇸',label:'Serbie'},{code:'US',flag:'🇺🇸',label:'États-Unis'},{code:'RU',flag:'🇷🇺',label:'Russie'},
+  {code:'DE',flag:'🇩🇪',label:'Allemagne'},{code:'AR',flag:'🇦🇷',label:'Argentine'},{code:'GB',flag:'🇬🇧',label:'Grande-Bretagne'},
+  {code:'AU',flag:'🇦🇺',label:'Australie'},{code:'CA',flag:'🇨🇦',label:'Canada'},{code:'JP',flag:'🇯🇵',label:'Japon'},
+  {code:'CH',flag:'🇨🇭',label:'Suisse'},{code:'HR',flag:'🇭🇷',label:'Croatie'},{code:'GR',flag:'🇬🇷',label:'Grèce'},
+  {code:'NO',flag:'🇳🇴',label:'Norvège'},{code:'BG',flag:'🇧🇬',label:'Bulgarie'},{code:'KZ',flag:'🇰🇿',label:'Kazakhstan'},
+  {code:'CL',flag:'🇨🇱',label:'Chili'},{code:'BR',flag:'🇧🇷',label:'Brésil'},{code:'PL',flag:'🇵🇱',label:'Pologne'},
+  {code:'CZ',flag:'🇨🇿',label:'Tchéquie'},{code:'AT',flag:'🇦🇹',label:'Autriche'},{code:'DK',flag:'🇩🇰',label:'Danemark'},
+  {code:'SE',flag:'🇸🇪',label:'Suède'},{code:'PT',flag:'🇵🇹',label:'Portugal'},{code:'KR',flag:'🇰🇷',label:'Corée du Sud'},
+  {code:'CN',flag:'🇨🇳',label:'Chine'},{code:'BE',flag:'🇧🇪',label:'Belgique'},{code:'NL',flag:'🇳🇱',label:'Pays-Bas'}
+];
+
+// ---------------- Coaches (choose 1 of 4 at age 16) ----------------
+const COACHES = [
+  {id:'technique', name:'Marion Castel', role:'Coach Technique', desc:'Ancienne pro du circuit ITF, obsédée par la propreté technique.', bonus:{coupDroit:4, revers:3}, bonusLabel:'+4 Coup droit / +3 Revers'},
+  {id:'physique', name:'Erik Solberg', role:'Préparateur Physique', desc:'Spécialiste scandinave de la préparation athlétique.', bonus:{physique:5, service:2}, bonusLabel:'+5 Physique / +2 Service'},
+  {id:'mental', name:'Yasmin Okafor', role:'Psychologue du Sport', desc:'Ancienne psychologue du sport, travaille la résilience mentale.', bonus:{mental:5, reputation:5}, bonusLabel:'+5 Mental / +5 Réputation'},
+  {id:'service', name:'Tomasz Wirth', role:'Ancien Serveur-Volleyeur', desc:'Ancien Top 50, un style offensif à l\'ancienne.', bonus:{service:5, mental:2}, bonusLabel:'+5 Service / +2 Mental'}
+];
+
+// ---------------- Academies (choice at creation, "club" feel) ----------------
+const ACADEMIES = [
+  {id:'riviera', name:'Riviera Performance Academy', region:'France', desc:'Structure prestigieuse, très médiatisée.', bonus:{physique:2, reputation:3}, bonusLabel:'+2 Physique / +3 Réputation'},
+  {id:'andes', name:'Andes High Performance Center', region:'Argentine', desc:'École dure, terre battue à volonté.', bonus:{coupDroit:3, mental:2}, bonusLabel:'+3 Coup droit / +2 Mental'},
+  {id:'nordic', name:'Nordic Tennis Institute', region:'Scandinavie', desc:'Rigueur scandinave, peu de fioritures.', bonus:{physique:3, service:2}, bonusLabel:'+3 Physique / +2 Service'},
+  {id:'golden', name:'Golden Coast Academy', region:'Australie', desc:'Ambiance décontractée, focus sur le jeu total.', bonus:{mental:3, revers:2}, bonusLabel:'+3 Mental / +2 Revers'}
+];
+
+// ---------------- Season objectives (chosen client-side each season, guaranteed impact) ----------------
+const OBJECTIVES = [
+  {id:'grands-tournois', label:'Viser les grands tournois', desc:'Prioriser Grand Chelem et Masters 1000, quitte à prendre des risques.', impact:{mental:2, physique:-2}},
+  {id:'classement', label:'Construire mon classement', desc:'Enchaîner les tournois Challenger/ITF pour grimper sûrement.', impact:{coupDroit:1, revers:1}},
+  {id:'sante', label:'Préserver ma santé', desc:'Calendrier allégé, focus récupération et prévention des blessures.', impact:{physique:3, mental:1}},
+  {id:'medias', label:'Conquérir les médias', desc:'Multiplier interviews et exposition pour la réputation et les sponsors.', impact:{reputation:4, physique:-1}}
+];
+
+const LOADING_MESSAGES = ['Rédaction de la saison...', 'Consultation du calendrier...', 'Simulation des tournois...', 'Calcul des résultats...', 'Dernières touches...'];
+let loadingTimer = null;
+function startLoadingRotation(){
+  stopLoadingRotation();
+  let i = 0;
+  const el = () => document.getElementById('loading-text');
+  if(el()) el().textContent = LOADING_MESSAGES[0];
+  loadingTimer = setInterval(()=>{
+    i = (i+1) % LOADING_MESSAGES.length;
+    const node = el();
+    if(node) node.textContent = LOADING_MESSAGES[i];
+  }, 1500);
+}
+function stopLoadingRotation(){ if(loadingTimer){ clearInterval(loadingTimer); loadingTimer = null; } }
+
+let state = null;
+function freshState(){
+  return {
+    screen: 'start', sport: 'tennis',
+    name: '', nameError: '', email: '', partnerConsent: false,
+    countryCode: null, circuit: 'ATP', hand: 'Droitier', style: null,
+    coach: null, academy: null,
+    age: 16, ranking: 850, bestRanking: 850,
+    stats: { service: 30, coupDroit: 30, revers: 30, physique: 30, mental: 30 },
+    lastDelta: { service:0, coupDroit:0, revers:0, physique:0, mental:0 },
+    reputation: 50,
+    totalEarnings: 5000,
+    majors: 0, totalTitles: 0, titlesLog: [],
+    suspendedSeasons: 0,
+    log: [],
+    seasonObjective: null,
+    season: null, seasonStage: 'beat0', // beat0 | tactical | beat1 | recap
+    seasonCount: 0,
+    lastRecapChoice: null,
+    current: null,
+    errorMsg: '', retryAction: null
+  };
+}
+state = freshState();
+
+const STYLES_TENNIS = [
+  {id:'fond-de-court', label:'Fond de court', desc:'Puissance et régularité depuis la ligne de fond'},
+  {id:'service-volee', label:'Service-volée', desc:'Monte au filet, joue vite et prend des risques'},
+  {id:'tout-terrain', label:'Tout-terrain', desc:'Polyvalent, s\'adapte à toutes les surfaces'},
+  {id:'contreur', label:'Contreur', desc:'Défense solide, use les adversaires'}
+];
+const STYLES_PADEL = [
+  {id:'attaquant-filet', label:'Attaquant filet', desc:'Cherche le filet, finit les points au smash'},
+  {id:'defenseur-fond', label:'Défenseur de fond', desc:'Exploite les vitres, temporise et lasse l\'adversaire'},
+  {id:'polyvalent', label:'Polyvalent', desc:'À l\'aise des deux côtés du terrain (drive et revés)'},
+  {id:'bandeja', label:'Spécialiste bandeja', desc:'Contrôle le rythme avec des amorties et bandejas précises'}
+];
+function currentStyles(){ return state.sport === 'padel' ? STYLES_PADEL : STYLES_TENNIS; }
+
+const SPORTS = {
+  tennis: { label: 'Tennis', majorLabel: 'Grand Chelem', teamCupAtp: 'Coupe Davis', teamCupWta: 'Billie Jean King Cup',
+    statLabels: { service:'Service', coupDroit:'Coup droit', revers:'Revers', physique:'Physique', mental:'Mental' }, doubles: false },
+  padel: { label: 'Padel', majorLabel: 'Titre Majeur', teamCupAtp: 'Coupe des Nations', teamCupWta: 'Coupe des Nations',
+    statLabels: { service:'Service', coupDroit:'Volée', revers:'Smash', physique:'Physique', mental:'Mental' }, doubles: true }
+};
+function sportCfg(){ return SPORTS[state.sport]; }
+
+function formatName(raw){
+  return raw.trim().split(/\s+/).map(w => w.length ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w).join(' ');
+}
+function fmtMoney(n){ return (n||0).toLocaleString('fr-FR') + ' €'; }
+// Sponsor income is always computed deterministically from ranking, never left to the AI, so it stays consistent season to season.
+function computeSponsorRevenue(ranking){
+  if(!ranking || ranking > 700) return Math.round(200 + Math.random()*300);
+  if(ranking > 300) return Math.round(1000 + Math.random()*3000);
+  if(ranking > 100) return Math.round(6000 + Math.random()*14000);
+  if(ranking > 50) return Math.round(25000 + Math.random()*35000);
+  if(ranking > 10) return Math.round(80000 + Math.random()*140000);
+  return Math.round(400000 + Math.random()*500000);
+}
+
+// ---------------- Guaranteed choice impact ----------------
+const STAT_LABELS_GENERIC = { service:'Service', coupDroit:'Coup droit', revers:'Revers', physique:'Physique', mental:'Mental' };
+function impactBadgeHTML(impact){
+  if(!impact) return '';
+  const parts = [];
+  ['service','coupDroit','revers','physique','mental'].forEach(k=>{ if(impact[k]) parts.push(`${impact[k]>0?'+':''}${impact[k]} ${STAT_LABELS_GENERIC[k]}`); });
+  if(impact.reputation) parts.push(`${impact.reputation>0?'+':''}${impact.reputation} Réputation`);
+  if(impact.earnings) parts.push(`${impact.earnings>0?'+':''}${fmtMoney(impact.earnings)}`);
+  if(!parts.length) return '';
+  return `<div class="impact-badge">⚡ ${parts.join(' · ')}</div>`;
+}
+function applyImpact(impact){
+  if(!impact) return;
+  const delta = { service:0, coupDroit:0, revers:0, physique:0, mental:0 };
+  ['service','coupDroit','revers','physique','mental'].forEach(k=>{
+    if(typeof impact[k] === 'number' && impact[k] !== 0){
+      const before = state.stats[k];
+      state.stats[k] = Math.max(5, Math.min(99, state.stats[k] + impact[k]));
+      delta[k] += state.stats[k] - before;
+    }
+  });
+  if(typeof impact.reputation === 'number'){ state.reputation = Math.max(0, Math.min(100, state.reputation + impact.reputation)); }
+  if(typeof impact.earnings === 'number' && impact.earnings){ state.totalEarnings += impact.earnings; }
+  state.lastDelta = { service: state.lastDelta.service+delta.service, coupDroit: state.lastDelta.coupDroit+delta.coupDroit, revers: state.lastDelta.revers+delta.revers, physique: state.lastDelta.physique+delta.physique, mental: state.lastDelta.mental+delta.mental };
+}
+function fallbackImpact(category){
+  const c = (category || '').toLowerCase();
+  if(c.includes('entraîn') || c.includes('entrain')) return { coupDroit:1, revers:1 };
+  if(c.includes('récup') || c.includes('recup') || c.includes('santé') || c.includes('sante')) return { physique:3 };
+  if(c.includes('média') || c.includes('media') || c.includes('carita')) return { reputation:4 };
+  if(c.includes('coach')) return { mental:2 };
+  if(c.includes('académ') || c.includes('academ')) return { physique:1, mental:1 };
+  if(c.includes('dopage')) return { physique:4, mental:-2 };
+  if(c.includes('investissement')) return { physique:2 };
+  if(c.includes('calendrier') || c.includes('davis') || c.includes('king cup') || c.includes('nations')) return { reputation:2, physique:-1 };
+  return { mental:1 };
+}
+function applyBeatEffects(beat){
+  const delta = { service:0, coupDroit:0, revers:0, physique:0, mental:0 };
+  if(beat.statChanges){
+    for(const k of ['service','coupDroit','revers','physique','mental']){
+      if(typeof beat.statChanges[k] === 'number'){
+        const before = state.stats[k];
+        state.stats[k] = Math.max(5, Math.min(99, state.stats[k] + beat.statChanges[k]));
+        delta[k] = state.stats[k] - before;
+      }
+    }
+  }
+  state.lastDelta = delta;
+  if(beat.earningsDelta){ state.totalEarnings += beat.earningsDelta; }
+  if(beat.titles && beat.titles.length){ state.totalTitles += beat.titles.length; state.titlesLog.push(...beat.titles); }
+}
+
+function render(){
+  stopLoadingRotation();
+  if(state.screen === 'start') return renderStart();
+  if(state.screen === 'create') return renderCreate();
+  if(state.screen === 'coach') return renderCoach();
+  if(state.screen === 'academy') return renderAcademy();
+  if(state.screen === 'objective') return renderObjective();
+  if(state.screen === 'loading') return renderLoading();
+  if(state.screen === 'beat') return renderBeat();
+  if(state.screen === 'tactical') return renderTactical();
+  if(state.screen === 'recap') return renderRecap();
+  if(state.screen === 'error') return renderError();
+  if(state.screen === 'end') return renderEnd();
+}
+
+// ---------------- START ----------------
+function renderStart(){
+  root.innerHTML = `
+    <div class="panel">
+      <h2>Écrivez votre légende</h2>
+      <p class="lede">De 16 ans jusqu'à la retraite — chaque saison générée par IA en un clin d'œil</p>
+      <p class="start-copy">Choisissez votre sport, créez votre joueur, choisissez votre coach et votre académie de formation, puis vivez chaque saison en plusieurs temps forts : objectif, début de saison, milieu de saison et bilan. Tous les adversaires, coachs et académies sont entièrement fictifs.</p>
+      <div class="field" style="margin-top:20px;">
+        <label>Sport</label>
+        <div class="choice-grid">
+          <div class="chip ${state.sport==='tennis'?'selected':''}" data-sport="tennis"><strong>🎾 Tennis</strong><small>Simple, sur le circuit ATP/WTA</small></div>
+          <div class="chip ${state.sport==='padel'?'selected':''}" data-sport="padel"><strong>🏓 Padel</strong><small>En double, avec un(e) partenaire</small></div>
+        </div>
+      </div>
+      <div class="footer-actions"><button class="btn" id="start-btn">Commencer ma carrière</button></div>
+    </div>
+  `;
+  document.querySelectorAll('[data-sport]').forEach(el=> el.onclick = ()=>{ state.sport = el.dataset.sport; state.style=null; render(); });
+  document.getElementById('start-btn').onclick = () => { state.screen='create'; render(); };
+}
+
+// ---------------- CREATE ----------------
+function renderCreate(){
+  const cfg = sportCfg();
+  root.innerHTML = `
+    <div class="panel">
+      <h2>Créez votre joueur ${cfg.label==='Padel'?'de padel':'de tennis'}</h2>
+      <p class="lede">Étape 1 — vos origines</p>
+      <div class="row-2">
+        <div class="field">
+          <label>Prénom &amp; nom *</label>
+          <input type="text" id="name-input" class="${state.nameError?'invalid':''}" placeholder="ex. Léo Bertrand" value="${state.name}">
+          ${state.nameError ? `<div class="err">${state.nameError}</div>` : ''}
+        </div>
+        <div class="field">
+          <label>Email (optionnel)</label>
+          <input type="email" id="email-input" placeholder="vous@exemple.com" value="${state.email}">
+        </div>
+      </div>
+      <div class="consent-row">
+        <input type="checkbox" id="consent-input" ${state.partnerConsent?'checked':''}>
+        <div class="c-text">J'accepte de recevoir par email des offres et communications de partenaires ${cfg.label.toLowerCase()} sélectionnés par Tennis Story. Vous pourrez vous désinscrire à tout moment.</div>
+      </div>
+      <div class="field" style="margin-top:18px;">
+        <label>Nationalité *</label>
+        <div class="flag-grid">
+          ${FLAGS.map(f=>`<div class="flag-chip ${state.countryCode===f.code?'selected':''}" data-flag="${f.code}"><span class="fl">${f.flag}</span>${f.label}</div>`).join('')}
+        </div>
+      </div>
+      <div class="field">
+        <label>Circuit</label>
+        <div class="choice-grid">
+          ${['Masculin','Féminin'].map((c,i)=>{ const val = i===0?'ATP':'WTA'; return `<div class="chip ${state.circuit===val?'selected':''}" data-circuit="${val}"><strong>${c}</strong></div>`; }).join('')}
+        </div>
+      </div>
+      <div class="field">
+        <label>Main</label>
+        <div class="choice-grid">
+          ${['Droitier','Gaucher'].map(h=>`<div class="chip ${state.hand===h?'selected':''}" data-hand="${h}"><strong>${h}</strong></div>`).join('')}
+        </div>
+      </div>
+      <div class="field">
+        <label>Style de jeu</label>
+        <div class="choice-grid">
+          ${currentStyles().map(s=>`<div class="chip ${state.style===s.id?'selected':''}" data-style="${s.id}"><strong>${s.label}</strong><small>${s.desc}</small></div>`).join('')}
+        </div>
+      </div>
+      <div class="footer-actions">
+        <button class="btn secondary" id="back-btn">Retour</button>
+        <button class="btn" id="next-btn" ${(!state.style || !state.countryCode)?'disabled':''}>Suivant : choisir mon coach</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('name-input').oninput = e => { state.name = e.target.value; state.nameError=''; };
+  document.getElementById('email-input').oninput = e => state.email = e.target.value;
+  document.getElementById('consent-input').onchange = e => state.partnerConsent = e.target.checked;
+  document.querySelectorAll('[data-flag]').forEach(el=> el.onclick = ()=>{ state.countryCode = el.dataset.flag; render(); });
+  document.querySelectorAll('[data-circuit]').forEach(el=> el.onclick = ()=>{ state.circuit = el.dataset.circuit; render(); });
+  document.querySelectorAll('[data-hand]').forEach(el=> el.onclick = ()=>{ state.hand = el.dataset.hand; render(); });
+  document.querySelectorAll('[data-style]').forEach(el=> el.onclick = ()=>{ state.style = el.dataset.style; render(); });
+  document.getElementById('back-btn').onclick = ()=>{ state.screen='start'; render(); };
+  document.getElementById('next-btn').onclick = async ()=>{
+    const formatted = formatName(state.name);
+    if(!formatted || formatted.length < 3 || !/^[A-Za-zÀ-ÿ' -]+\s+[A-Za-zÀ-ÿ' -]+/.test(formatted)){
+      state.nameError = 'Merci de renseigner un prénom ET un nom.';
+      render();
+      return;
+    }
+    state.name = formatted;
+    await saveLeadIfConsented();
+    state.screen = 'coach';
+    render();
+  };
+}
+
+async function saveLeadIfConsented(){
+  if(!state.partnerConsent || !state.email) return;
+  try{
+    await fetch('/api/lead', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: state.name, email: state.email, sport: state.sport })
+    });
+  }catch(e){ console.warn('Lead capture failed (non-blocking):', e); }
+}
+
+// ---------------- COACH ----------------
+function renderCoach(){
+  root.innerHTML = `
+    <div class="panel">
+      <h2>Choisissez votre coach</h2>
+      <p class="lede">Étape 2 — à 16 ans, un premier entraîneur vous prend sous son aile</p>
+      <div class="choices">
+        ${COACHES.map(c => `
+          <div class="choice-card" data-coach="${c.id}">
+            <div class="c-tag">${c.role}</div>
+            <div class="c-label">${c.name}</div>
+            <div class="c-desc">${c.desc}</div>
+            <div class="impact-badge">${c.bonusLabel}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="footer-actions"><button class="btn secondary" id="back-btn">Retour</button></div>
+    </div>
+  `;
+  document.getElementById('back-btn').onclick = ()=>{ state.screen='create'; render(); };
+  document.querySelectorAll('[data-coach]').forEach(el=>{
+    el.onclick = ()=>{
+      const c = COACHES.find(x=>x.id===el.dataset.coach);
+      state.coach = { id:c.id, name:c.name, role:c.role };
+      Object.entries(c.bonus).forEach(([k,v])=>{
+        if(k==='reputation') state.reputation = Math.min(100, state.reputation+v);
+        else state.stats[k] = Math.min(99, state.stats[k]+v);
+      });
+      state.screen = 'academy';
+      render();
+    };
+  });
+}
+
+// ---------------- ACADEMY ----------------
+function renderAcademy(){
+  root.innerHTML = `
+    <div class="panel">
+      <h2>Choisissez votre académie de formation</h2>
+      <p class="lede">Étape 3 — comme un premier club, elle façonne vos débuts</p>
+      <div class="choices">
+        ${ACADEMIES.map(a => `
+          <div class="choice-card" data-academy="${a.id}">
+            <div class="c-tag">${a.region}</div>
+            <div class="c-label">${a.name}</div>
+            <div class="c-desc">${a.desc}</div>
+            <div class="impact-badge">${a.bonusLabel}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="footer-actions"><button class="btn secondary" id="back-btn">Retour</button></div>
+    </div>
+  `;
+  document.getElementById('back-btn').onclick = ()=>{ state.screen='coach'; render(); };
+  document.querySelectorAll('[data-academy]').forEach(el=>{
+    el.onclick = ()=>{
+      const a = ACADEMIES.find(x=>x.id===el.dataset.academy);
+      state.academy = { id:a.id, name:a.name, region:a.region };
+      Object.entries(a.bonus).forEach(([k,v])=>{
+        if(k==='reputation') state.reputation = Math.min(100, state.reputation+v);
+        else state.stats[k] = Math.min(99, state.stats[k]+v);
+      });
+      state.screen = 'objective';
+      render();
+    };
+  });
+}
+
+// ---------------- OBJECTIVE (client-side, triggers the single season API call) ----------------
+function renderObjective(){
+  root.innerHTML = `
+    ${scoreboardHTML()}
+    <div class="panel">
+      <h2>Objectif de la saison ${state.age} ans</h2>
+      <p class="lede">Quelle est votre priorité pour cette saison ?</p>
+      <div class="choices">
+        ${OBJECTIVES.map(o => `
+          <div class="choice-card" data-obj="${o.id}">
+            <div class="c-label">${o.label}</div>
+            <div class="c-desc">${o.desc}</div>
+            ${impactBadgeHTML(o.impact)}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  document.querySelectorAll('[data-obj]').forEach(el=>{
+    el.onclick = ()=>{
+      const o = OBJECTIVES.find(x=>x.id===el.dataset.obj);
+      state.seasonObjective = o;
+      applyImpact(o.impact);
+      state.seasonCount += 1;
+      fetchSeason();
+    };
+  });
+}
+
+// ---------------- LOADING ----------------
+function renderLoading(){
+  root.innerHTML = `
+    ${state.age > 16 ? scoreboardHTML() : ''}
+    <div class="panel">
+      <div class="loading"><div class="spinner"></div><span id="loading-text">Chargement...</span></div>
+    </div>
+  `;
+}
+
+function renderError(){
+  root.innerHTML = `
+    <div class="panel">
+      <h2>Un problème est survenu</h2>
+      <div class="error-box">${state.errorMsg}</div>
+      <div class="footer-actions"><button class="btn" id="retry-btn">Réessayer</button></div>
+    </div>
+  `;
+  document.getElementById('retry-btn').onclick = ()=> { if(state.retryAction) state.retryAction(); };
+}
+
+function deltaTag(v){ if(!v) return ''; return `<span class="delta ${v>0?'up':'down'}">${v>0?'+':''}${v}</span>`; }
+function statBar(label, val, delta){
+  return `<div class="stat-row"><div class="label">${label}</div><div class="stat-track"><div class="stat-fill" style="width:${Math.min(100,val)}%"></div></div><div class="num">${val}</div><div>${deltaTag(delta)}</div></div>`;
+}
+
+function scoreboardHTML(){
+  const d = state.lastDelta || {};
+  const cfg = sportCfg();
+  const flag = FLAGS.find(f=>f.code===state.countryCode);
+  return `
+    <div class="scoreboard">
+      <div class="sb-item"><div class="v">${state.age}</div><div class="l">Âge</div></div>
+      <div class="sb-item"><div class="v">#${state.ranking}</div><div class="l">Classement</div></div>
+      <div class="sb-item"><div class="v">${state.majors}</div><div class="l">${cfg.majorLabel}</div></div>
+      <div class="sb-item"><div class="v">${state.totalTitles}</div><div class="l">Titres pro</div></div>
+      <div class="sb-item"><div class="v">${state.reputation}</div><div class="l">Réputation</div></div>
+      <div class="sb-item"><div class="v money">${fmtMoney(state.totalEarnings)}</div><div class="l">Gains cumulés</div></div>
+      <div class="coach-line">${flag?flag.flag+' '+flag.label:''} · Coach : <b>${state.coach ? state.coach.name : '—'}</b> · Académie : <b>${state.academy ? state.academy.name : '—'}</b>${state.suspendedSeasons>0 ? ' · <b style="color:#e08a80">Suspendu(e)</b>' : ''}</div>
+      <div class="stat-bars">
+        ${statBar(cfg.statLabels.service, state.stats.service, d.service)}
+        ${statBar(cfg.statLabels.coupDroit, state.stats.coupDroit, d.coupDroit)}
+        ${statBar(cfg.statLabels.revers, state.stats.revers, d.revers)}
+        ${statBar(cfg.statLabels.physique, state.stats.physique, d.physique)}
+        ${statBar(cfg.statLabels.mental, state.stats.mental, d.mental)}
+      </div>
+    </div>
+  `;
+}
+
+function beatProgressHTML(activeIdx){
+  const labels = ['Objectif','Début de saison','Milieu de saison','Bilan'];
+  return `<div class="beat-progress">${labels.map((l,i)=>`<div class="beat-dot ${i<activeIdx?'done':(i===activeIdx?'active':'')}"></div>`).join('')}</div>`;
+}
+
+// ---------------- BEAT (instant, no network — reads from state.season) ----------------
+function renderBeat(){
+  const beatIdx = state.seasonStage === 'beat0' ? 0 : 1;
+  const b = state.season.beats[beatIdx];
+  const cfg = sportCfg();
+  root.innerHTML = `
+    ${scoreboardHTML()}
+    <div class="panel">
+      ${beatProgressHTML(beatIdx+1)}
+      <span class="season-tag">Saison ${state.age} ans · ${cfg.label} · ${state.circuit === 'WTA' ? 'Féminin' : 'Masculin'}</span>
+      <h2 class="headline">${b.highlight || 'Étape de saison'}</h2>
+      <div class="narrative">${b.narrative}</div>
+      ${b.titles && b.titles.length ? `<div class="titles-won">${b.titles.map(t=>`<span class="title-pill">🏆 ${t}</span>`).join('')}</div>` : ''}
+      ${b.earningsDelta ? `<div class="titles-won"><span class="title-pill money">💰 +${fmtMoney(b.earningsDelta)}</span></div>` : ''}
+      <div class="choices">
+        ${b.choices.map(ch => `
+          <div class="choice-card" data-choice="${ch.id}">
+            <div class="c-tag">${ch.category || 'Décision'}</div>
+            <div class="c-label">${ch.label}</div>
+            <div class="c-desc">${ch.description}</div>
+            ${impactBadgeHTML(ch.impact || fallbackImpact(ch.category))}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  document.querySelectorAll('[data-choice]').forEach(el=>{
+    el.onclick = ()=>{
+      const chosen = b.choices.find(x=>x.id===el.dataset.choice);
+      applyImpact(chosen.impact || fallbackImpact(chosen.category));
+      if(state.seasonStage === 'beat0'){
+        state.seasonStage = 'beat1';
+        const nextBeat = state.season.beats[1];
+        if(nextBeat.tactical){
+          state.pendingTactical = nextBeat.tactical;
+          state.screen = 'tactical';
+        } else {
+          applyBeatEffects(nextBeat);
+          state.screen = 'beat';
+        }
+      } else {
+        goToRecap();
+      }
+      render();
+    };
+  });
+}
+
+// ---------------- TACTICAL (outcomes pre-generated, resolved instantly) ----------------
+function renderTactical(){
+  const t = state.pendingTactical;
+  root.innerHTML = `
+    ${scoreboardHTML()}
+    <div class="panel tactical">
+      ${beatProgressHTML(2)}
+      <span class="season-tag">Moment décisif · ${t.tournamentName || t.highlight}</span>
+      <h2 class="headline">${t.highlight}</h2>
+      <div class="narrative">${t.narrative}</div>
+      ${t.opponent ? `
+        <div class="opponent-card">
+          <div><b>Adversaire${sportCfg().doubles?'s':''} :</b> ${t.opponent.fullName}</div>
+          <div><b>Classement :</b> #${t.opponent.ranking || '?'}</div>
+          <div><b>Style :</b> ${t.opponent.playStyle || '—'}</div>
+        </div>` : ''}
+      <div class="choices">
+        ${t.tacticalOptions.map(o => `
+          <div class="choice-card" data-tactic="${o.id}">
+            <div class="c-tag">Choix tactique</div>
+            <div class="c-label">${o.label}</div>
+            <div class="c-desc">${o.description}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  document.querySelectorAll('[data-tactic]').forEach(el=>{
+    el.onclick = ()=>{
+      const outcome = t.tacticalOptions.find(o=>o.id===el.dataset.tactic);
+      // Turn the pre-generated outcome into a normal "beat" object with a single continue choice.
+      applyBeatEffects({ statChanges: outcome.outcomeStatChanges, earningsDelta: outcome.outcomeEarnings, titles: outcome.outcomeTitles || [] });
+      goToRecap();
+      render();
+    };
+  });
+}
+
+function goToRecap(){
+  const rec = state.season.recap;
+  applyStatChanges(rec.statChanges, rec.reputationChange);
+  if(rec.earningsDelta){ state.totalEarnings += rec.earningsDelta; }
+  const cfg = sportCfg();
+  if(rec.titles && rec.titles.length){
+    state.totalTitles += rec.titles.length;
+    state.titlesLog.push(...rec.titles);
+    const majorRe = new RegExp(cfg.majorLabel === 'Grand Chelem' ? "grand chelem|open d'australie|roland-garros|wimbledon|us open" : cfg.majorLabel, 'i');
+    rec.titles.forEach(t=>{ if(majorRe.test(t)) state.majors += 1; });
+  }
+  const previousRanking = state.ranking;
+  if(typeof rec.newRanking === 'number' && rec.newRanking > 0){ state.ranking = rec.newRanking; }
+  rec.previousRanking = previousRanking;
+  rec.sponsorRevenue = computeSponsorRevenue(state.ranking);
+  state.totalEarnings += rec.sponsorRevenue;
+  if(typeof rec.suspensionSeasons === 'number' && rec.suspensionSeasons > 0){ state.suspendedSeasons = Math.max(state.suspendedSeasons, rec.suspensionSeasons); }
+  if(state.ranking < state.bestRanking) state.bestRanking = state.ranking;
+  state.current = rec;
+  state.screen = 'recap';
+}
+
+function applyStatChanges(delta, repDelta){
+  const applied = { service:0, coupDroit:0, revers:0, physique:0, mental:0 };
+  if(delta){
+    for(const k of ['service','coupDroit','revers','physique','mental']){
+      if(typeof delta[k] === 'number'){
+        const before = state.stats[k];
+        state.stats[k] = Math.max(5, Math.min(99, state.stats[k] + delta[k]));
+        applied[k] = state.stats[k] - before;
+      }
+    }
+  }
+  if(typeof repDelta === 'number'){ state.reputation = Math.max(0, Math.min(100, state.reputation + repDelta)); }
+  state.lastDelta = applied;
+}
+
+// ---------------- RECAP ----------------
+function renderRecap(){
+  const c = state.current;
+  const cfg = sportCfg();
+  root.innerHTML = `
+    ${scoreboardHTML()}
+    <div class="panel">
+      ${beatProgressHTML(3)}
+      <span class="season-tag">Bilan de la saison ${state.age} ans</span>
+      <h2 class="headline">${c.highlight || 'Bilan de saison'}</h2>
+      <div class="narrative">${c.narrative}</div>
+      ${c.titles && c.titles.length ? `<div class="titles-won">${c.titles.map(t=>`<span class="title-pill ${new RegExp(cfg.majorLabel,'i').test(t)?'gold':''}">🏆 ${t}</span>`).join('')}</div>` : ''}
+      <div class="recap-stats">
+        <div class="recap-stat"><div class="rv win">${c.wins ?? '—'}</div><div class="rl">Victoires</div></div>
+        <div class="recap-stat"><div class="rv loss">${c.losses ?? '—'}</div><div class="rl">Défaites</div></div>
+        <div class="recap-stat"><div class="rv">${fmtMoney(c.earningsDelta || 0)}</div><div class="rl">Gains tournois</div></div>
+        <div class="recap-stat"><div class="rv">${fmtMoney(c.sponsorRevenue || 0)}</div><div class="rl">Revenus sponsors</div></div>
+        <div class="recap-stat"><div class="rv">${(c.kmTraveled || 0).toLocaleString('fr-FR')} km</div><div class="rl">Parcourus</div></div>
+        <div class="recap-stat"><div class="rv">#${state.ranking}</div><div class="rl">Nouveau classement <span class="rank-arrow">(#${c.previousRanking ?? '?'} → #${state.ranking})</span></div></div>
+      </div>
+      ${state.suspendedSeasons>0 ? `<div class="titles-won"><span class="title-pill warn">⛔ Suspendu(e) ${state.suspendedSeasons} saison(s)</span></div>` : ''}
+      <div class="season-meta">
+        ${c.majorResult ? `<span><b>${cfg.majorLabel} :</b> ${c.majorResult}</span>`:''}
+        ${c.teamCup ? `<span><b>${state.circuit==='WTA'?cfg.teamCupWta:cfg.teamCupAtp} :</b> ${c.teamCup}</span>`:''}
+        ${c.majorEvent ? `<span><b>Événement :</b> ${c.majorEvent}</span>`:''}
+      </div>
+      <p class="lede" style="margin-top:18px;">Décisions pour la saison prochaine :</p>
+      <div class="choices">
+        ${c.choices.map(ch => {
+          const cost = ch.cost || 0;
+          const affordable = cost <= state.totalEarnings;
+          return `
+          <div class="choice-card ${ch.category==='Dopage'?'risky':''} ${cost?'money':''} ${!affordable?'disabled':''}" data-choice="${affordable?ch.id:''}" data-cost="${cost}">
+            <div class="c-tag"><span>${ch.category || ''}</span>${cost?`<span class="cost-tag">-${fmtMoney(cost)}</span>`:''}</div>
+            <div class="c-label">${ch.label}</div>
+            <div class="c-desc">${ch.description}${!affordable?' (gains insuffisants)':''}</div>
+            ${impactBadgeHTML(ch.impact || fallbackImpact(ch.category))}
+          </div>
+        `}).join('')}
+        <div class="choice-card" data-choice="__retire__" style="border-color:var(--clay);">
+          <div class="c-tag" style="color:var(--clay);">Fin de carrière</div>
+          <div class="c-label" style="color:var(--clay);">Prendre sa retraite</div>
+          <div class="c-desc">Mettre fin à la carrière ici et voir votre palmarès final</div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.querySelectorAll('[data-choice]').forEach(el=>{
+    el.onclick = ()=>{
+      const choiceId = el.dataset.choice;
+      if(!choiceId) return;
+      if(choiceId === '__retire__'){ finishCareer(); return; }
+      const cost = parseInt(el.dataset.cost || '0', 10);
+      const chosen = c.choices.find(x=>x.id===choiceId);
+      if(cost > 0) state.totalEarnings -= cost;
+      applyImpact(chosen.impact || fallbackImpact(chosen.category));
+      if(chosen.category === 'Coach' && c.newCoachName){ state.coach = { id:'custom', name: c.newCoachName, role:'Nouveau coach' }; }
+      if(chosen.category === 'Académie' && c.newAcademyName){ state.academy = { id:'custom', name: c.newAcademyName, region:'' }; }
+      state.log.push(`${state.age} ans: ${c.highlight}`);
+      state.age += 1;
+      if(state.suspendedSeasons > 0) state.suspendedSeasons -= 1;
+      if(state.age > 39){ finishCareer(); return; }
+      state.lastRecapChoice = chosen;
+      state.season = null;
+      state.screen = 'objective';
+      render();
+    };
+  });
+}
+
+function renderEnd(){
+  const cfg = sportCfg();
+  root.innerHTML = `
+    <div class="panel">
+      <h2>Fin de carrière</h2>
+      <p class="lede">${state.name} — retraite à ${state.age} ans</p>
+      <div class="legend-summary">${state.current && state.current.legendSummary ? state.current.legendSummary : "Merci d'avoir joué votre carrière jusqu'au bout."}</div>
+      <div class="end-titles">
+        <div class="title-pill gold">🏆 ${state.majors} ${cfg.majorLabel}</div>
+        <div class="title-pill">🏆 ${state.totalTitles} titres au total</div>
+        <div class="title-pill">📈 Meilleur classement : #${state.bestRanking || state.ranking}</div>
+        <div class="title-pill">🤝 Réputation finale : ${state.reputation}/100</div>
+        <div class="title-pill money">💰 Gains cumulés : ${fmtMoney(state.totalEarnings)}</div>
+      </div>
+      <div class="footer-actions"><button class="btn" id="restart-btn">Nouvelle carrière</button></div>
+    </div>
+  `;
+  document.getElementById('restart-btn').onclick = ()=>{ state = freshState(); render(); };
+}
+
+// ---------------- Single combined API call per season ----------------
+function forcedOfferThisSeason(){
+  // Every 3rd season (from the 3rd onward), force a concrete recruitment/transfer event, alternating coach and academy.
+  if(state.seasonCount > 0 && state.seasonCount % 3 === 0){
+    return (Math.floor(state.seasonCount / 3) % 2 === 0) ? 'Coach' : 'Académie';
+  }
+  return null;
+}
+
+function buildSeasonSystemPrompt(){
+  const cfg = sportCfg();
+  const sportContext = state.sport === 'padel'
+    ? `Le sport est le PADEL (double fixe, circuit "Premier Padel" avec tournois Major, P1, P2).`
+    : `Le sport est le TENNIS (simple). Calendrier réel : Open d'Australie, Roland-Garros, Wimbledon, US Open (= "${cfg.majorLabel}"), Masters 1000, ATP/WTA Finals, tournois 250/500, Challengers, ${state.circuit==='WTA'?cfg.teamCupWta:cfg.teamCupAtp}.`;
+
+  return `Tu es le narrateur d'un jeu de simulation de carrière sportive en français ("Tennis Story"). ${sportContext}
+
+RÈGLE ABSOLUE SUR LES NOMS : tous les adversaires et personnages doivent être ENTIÈREMENT FICTIFS. N'utilise JAMAIS le nom d'un(e) joueur(se) réel(le).
+
+Réponds UNIQUEMENT avec un objet JSON valide, sans texte avant/après, sans markdown. Ton journalistique, immersif, CONCIS. Progression crédible vs classement (#${state.ranking}) et stats. Pic de forme 24-30 ans, déclin après 33 ans.
+
+Coach : ${state.coach ? state.coach.name+', '+state.coach.role : 'aucun'}. Académie : ${state.academy ? state.academy.name+' ('+state.academy.region+')' : 'aucune'}. Objectif de saison choisi : "${state.seasonObjective ? state.seasonObjective.label : ''}" (${state.seasonObjective ? state.seasonObjective.desc : ''}).
+
+Tu dois générer TOUTE la saison ${state.age} ans EN UN SEUL BLOC JSON (début, milieu, bilan) pour que le jeu n'ait besoin que d'un seul appel. RÈGLE DE LONGUEUR STRICTE PARTOUT, SANS EXCEPTION : chaque "narrative" de beat fait 35-55 MOTS MAXIMUM, chaque description de choix fait 8 MOTS MAXIMUM, le narrative du recap fait 50-70 MOTS MAXIMUM. Priorité absolue : produire un JSON COMPLET et VALIDE plutôt qu'un texte plus long — si tu manques de place, raccourcis encore plutôt que de risquer de t'arrêter avant la fin du JSON.
+
+STRUCTURE :
+- beats[0] : début de saison. Toujours un beat normal (jamais tactical).
+- beats[1] : milieu de saison. SI le niveau du joueur rend crédible une FINALE de ${cfg.majorLabel} ou Masters 1000 à ce stade, mets un objet "tactical" (voir ci-dessous) au lieu de narrative/choices. SINON, beats[1] est un beat normal comme beats[0].
+- recap : bilan de fin de saison (Coupe Davis/Billie Jean King Cup éventuelle, classement, choix pour la saison suivante).
+
+Chaque "choice" (dans beats[0].choices, beats[1].choices si pas tactical, et recap.choices) a : id (a/b/c), category (variées : "Calendrier","Entraînement","Récupération","Média","Coach","Académie","Dopage" rare et sobre sans détail réel,"Investissement", "${state.circuit==='WTA'?cfg.teamCupWta:cfg.teamCupAtp}"), label court, description (max 10 mots), et "impact" {"service":0,"coupDroit":0,"revers":0,"physique":0,"mental":0,"reputation":0,"earnings":0} (effet concret immédiat, petits nombres -4 à +4, seulement champs pertinents non nuls). Pour "Investissement" dans recap.choices uniquement, ajoute aussi "cost" (entier euros, entre 500 et ${Math.max(1000, Math.round(state.totalEarnings*0.6))}).
+
+Si "tactical" est utilisé pour beats[1] : { "tactical": { "highlight":"ex: Finale de Roland-Garros", "tournamentName":"...", "narrative":"35-50 mots menant à la finale, sans résultat", "opponent":{"fullName":"Prénom Nom fictif","ranking":12,"playStyle":"court"}, "tacticalOptions":[ {"id":"a","label":"...","description":"max 6 mots","outcomeNarrative":"25-35 mots MAXIMUM avec le résultat du match (score inclus)","outcomeStatChanges":{"service":0,"coupDroit":0,"revers":0,"physique":0,"mental":0},"outcomeEarnings":0,"outcomeTitles":[]}, {"id":"b", même structure}, {"id":"c", même structure} ] } } — génère les 3 issues possibles (une par tactique), chacune TRÈS COURTE et cohérente avec cette tactique.
+
+recap: donne "newRanking" (entier, progression/régression VISIBLE et crédible sur la saison), "wins" (entier, nombre approximatif de matchs gagnés dans la saison, cohérent avec le récit et le niveau), "losses" (entier, matchs perdus), "kmTraveled" (entier, kilomètres parcourus sur les tournois de la saison, cohérent avec le calendrier et l'objectif choisi — une tournée lointaine ou beaucoup de tournois augmente ce chiffre), "newCoachName" fictif (si tu proposes la catégorie "Coach"), "newAcademyName" fictif + région (si tu proposes "Académie"), "suspensionSeasons" (>0 seulement si Dopage choisi une saison précédente et contrôle positif cette fois), "majorResult", "teamCup", "majorEvent" (null si non pertinent), exactement 3 choices.
+${forcedOfferThisSeason() ? `\nÉVÉNEMENT OBLIGATOIRE CETTE SAISON : un(e) ${forcedOfferThisSeason()==='Coach' ? "entraîneur(se) reconnu(e)" : "académie rivale prestigieuse"} vous approche activement pour vous recruter, avec une offre concrète (nom fictif à inventer). Le champ "majorEvent" du recap DOIT raconter cette approche en une phrase (ex: "Le préparateur X vous propose de le rejoindre après vos bons résultats"). Parmi les 3 choix du recap, un DOIT être de catégorie "${forcedOfferThisSeason()}" représentant l'ACCEPTATION de cette offre précise (avec ${forcedOfferThisSeason()==='Coach' ? '"newCoachName"' : '"newAcademyName"'} rempli avec le nom inventé), et un autre DOIT permettre de RESTER FIDÈLE à l'entraîneur/académie actuel(le) en déclinant l'offre (catégorie libre, sans changer newCoachName/newAcademyName).` : ''}
+
+Format JSON EXACT :
+{
+  "beats": [
+    { "highlight":"...", "narrative":"...", "statChanges":{"service":0,"coupDroit":0,"revers":0,"physique":0,"mental":0}, "earningsDelta":0, "titles":[], "choices":[{"id":"a","category":"...","label":"...","description":"...","impact":{}},{"id":"b","category":"...","label":"...","description":"...","impact":{}},{"id":"c","category":"...","label":"...","description":"...","impact":{}}] },
+    { "highlight":"...", "narrative":"...", "statChanges":{}, "earningsDelta":0, "titles":[], "choices":[...] } OU { "tactical": {...comme décrit ci-dessus...} }
+  ],
+  "recap": { "narrative":"50-70 mots", "highlight":"...", "statChanges":{"service":0,"coupDroit":0,"revers":0,"physique":0,"mental":0}, "reputationChange":0, "titles":[], "majorResult":null, "teamCup":null, "majorEvent":null, "earningsDelta":0, "newRanking":${state.ranking}, "wins":0, "losses":0, "kmTraveled":0, "suspensionSeasons":0, "newCoachName":null, "newAcademyName":null, "choices":[{"id":"a","category":"...","label":"...","description":"...","cost":0,"impact":{}},{"id":"b","category":"...","label":"...","description":"...","cost":0,"impact":{}},{"id":"c","category":"...","label":"...","description":"...","cost":0,"impact":{}}] }
+}`;
+}
+
+function buildSeasonUserPrompt(){
+  const cfg = sportCfg();
+  const flag = FLAGS.find(f=>f.code===state.countryCode);
+  return `État du joueur :
+- Sport : ${cfg.label}
+- Nom : ${state.name}
+- Nationalité : ${flag ? flag.label : ''}
+- Circuit : ${state.circuit === 'WTA' ? 'Féminin' : 'Masculin'}
+- Main : ${state.hand}
+- Style : ${currentStyles().find(s=>s.id===state.style)?.label || state.style}
+- Âge : ${state.age} ans
+- Classement : #${state.ranking}
+- Réputation : ${state.reputation}/100
+- Statut dopage : ${state.suspendedSeasons>0 ? `suspendu(e), ${state.suspendedSeasons} saison(s) restante(s)` : 'aucune suspension'}
+- Stats : ${cfg.statLabels.service} ${state.stats.service}, ${cfg.statLabels.coupDroit} ${state.stats.coupDroit}, ${cfg.statLabels.revers} ${state.stats.revers}, ${cfg.statLabels.physique} ${state.stats.physique}, ${cfg.statLabels.mental} ${state.stats.mental} (sur 99)
+- ${cfg.majorLabel} : ${state.majors} · Titres pro : ${state.totalTitles}
+- Historique récent : ${state.log.slice(-4).join(' | ') || 'Début de carrière'}
+${state.lastRecapChoice ? `- Choix fait en fin de saison précédente : "${state.lastRecapChoice.label}"` : ''}
+
+Génère toute la saison ${state.age} ans au format JSON demandé.`;
+}
+
+async function callClaude(system, userPrompt, maxTokens){
+  const response = await fetch("/api/generate", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ max_tokens: maxTokens || 1500, system: system, messages: [{ role: "user", content: userPrompt }] })
+  });
+  const data = await response.json();
+  const textBlock = (data.content || []).find(b => b.type === 'text');
+  if(!textBlock) throw new Error("Réponse vide de l'IA.");
+  let clean = textBlock.text.trim().replace(/^```json/i,'').replace(/^```/,'').replace(/```$/,'').trim();
+  return JSON.parse(clean);
+}
+
+async function fetchSeason(){
+  state.screen = 'loading';
+  render();
+  startLoadingRotation();
+  state.retryAction = fetchSeason;
+  try{
+    const parsed = await callClaude(buildSeasonSystemPrompt(), buildSeasonUserPrompt(), 2600);
+    if(!parsed.beats || parsed.beats.length < 2 || !parsed.recap) throw new Error("Format de saison invalide.");
+    state.season = parsed;
+    state.seasonStage = 'beat0';
+    applyBeatEffects(parsed.beats[0]);
+    state.screen = 'beat';
+    render();
+  }catch(err){
+    console.error(err);
+    state.errorMsg = "Impossible de générer la saison (" + (err.message || 'erreur inconnue') + "). Réessaie.";
+    state.screen = 'error';
+    render();
+  }
+}
+
+function finishCareer(){
+  (async ()=>{
+    state.screen = 'loading';
+    render();
+    startLoadingRotation();
+    try{
+      const response = await fetch("/api/generate", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          max_tokens: 300,
+          system: "Tu écris en français un court paragraphe (60-90 mots) résumant, comme un article hommage, la carrière sportive fictive terminée d'un(e) joueur(se), ton élogieux et journalistique. Réponds uniquement avec le texte, sans JSON ni guillemets.",
+          messages: [{ role:"user", content: `Résume la carrière de ${state.name} (${sportCfg().label}) : retraite à ${state.age} ans, ${state.majors} ${sportCfg().majorLabel}, ${state.totalTitles} titres au total, meilleur classement #${state.bestRanking || state.ranking}, réputation finale ${state.reputation}/100, gains cumulés ${fmtMoney(state.totalEarnings)}. Historique : ${state.log.slice(-6).join(' | ')}` }]
+        })
+      });
+      const data = await response.json();
+      const textBlock = (data.content || []).find(b => b.type === 'text');
+      state.current = { legendSummary: textBlock ? textBlock.text.trim() : '' };
+    }catch(e){
+      state.current = { legendSummary: '' };
+    }
+    state.screen = 'end';
+    render();
+  })();
+}
+
+render();
+</script>
+</body>
+</html>
