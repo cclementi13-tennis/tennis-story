@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tennis Story — Écrivez votre légende</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Literata:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0f2e1f; --bg-deep: #0a2116; --card: #f2f0e2; --card-line: #e3ded0;
+    --ink: #142118; --ink-soft: #4a5a4f; --accent: #d7e866; --accent-ink: #2a3010;
+    --clay: #c1443b; --gold: #d9a441; --line: #3e6b4f; --line-bright: #5c9270;
+    --font-display: 'Bebas Neue', sans-serif; --font-body: 'Literata', serif; --font-mono: 'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{ background: radial-gradient(ellipse at top, var(--bg) 0%, var(--bg-deep) 70%); color: var(--card); font-family: var(--font-body); min-height:100vh; display:flex; align-items:flex-start; justify-content:center; padding: 32px 16px 64px; }
+  .app{ width:100%; max-width:880px; }
+  .court-rule{ height:2px; background: repeating-linear-gradient(90deg, var(--line-bright) 0 10px, transparent 10px 18px); opacity:.55; margin: 6px 0 26px; }
+  .brand{ display:flex; align-items:baseline; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+  .brand h1{ font-family: var(--font-display); letter-spacing: 1.5px; font-size: clamp(32px, 6vw, 52px); margin:0; color: var(--card); }
+  .brand h1 span{ color: var(--accent); }
+  .brand .tag{ font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--line-bright); }
+
+  .panel{ background: var(--card); color: var(--ink); border-radius: 4px; padding: 28px 30px; margin-top: 22px; box-shadow: 0 18px 40px rgba(0,0,0,.35); position: relative; }
+  .panel::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:5px; background: var(--accent); border-radius: 4px 0 0 4px; }
+  .panel.tactical::before{ background: var(--clay); }
+  .panel h2{ font-family: var(--font-display); font-size: 26px; letter-spacing: .5px; margin: 0 0 6px; }
+  .lede{ color: var(--ink-soft); font-size: 14px; margin-bottom: 20px; }
+
+  .start-copy{ font-size: 16px; line-height:1.6; color: var(--ink-soft); max-width: 60ch;}
+  .btn{ font-family: var(--font-mono); font-size: 13px; letter-spacing: .5px; text-transform: uppercase; background: var(--accent); color: var(--accent-ink); border: none; padding: 13px 22px; border-radius: 3px; cursor: pointer; font-weight: 600; transition: transform .12s ease, box-shadow .12s ease; }
+  .btn:hover{ transform: translateY(-1px); box-shadow: 0 6px 14px rgba(215,232,102,.35); }
+  .btn:active{ transform: translateY(0); }
+  .btn.secondary{ background: transparent; color: var(--ink); border: 1.5px solid var(--ink); }
+  .btn.secondary:hover{ box-shadow:none; background: var(--ink); color: var(--card); }
+  .btn:disabled{ opacity:.5; cursor: not-allowed; transform:none; box-shadow:none;}
+
+  .field{ margin-bottom: 18px; }
+  .field label{ display:block; font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--ink-soft); margin-bottom: 7px; }
+  .field input[type=text], .field input[type=email]{ width:100%; padding: 11px 12px; border: 1.5px solid var(--card-line); border-radius: 3px; font-family: var(--font-body); font-size: 15px; background: #fff; color: var(--ink); }
+  .field .hint{ font-size:11px; color: var(--ink-soft); margin-top:5px; }
+  .choice-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 10px; }
+  .chip{ border: 1.5px solid var(--card-line); background: #fff; padding: 11px 12px; border-radius: 3px; cursor: pointer; font-size: 14px; text-align:left; font-family: var(--font-body); transition: border-color .12s ease, background .12s ease; }
+  .chip strong{ display:block; font-size:14px; }
+  .chip small{ color: var(--ink-soft); font-size:12px; }
+  .chip.selected{ border-color: var(--ink); background: #eae6d4; }
+  .chip:hover{ border-color: var(--ink); }
+
+  .row-2{ display:grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width:560px){ .row-2{ grid-template-columns: 1fr; } }
+
+  .consent-row{ display:flex; align-items:flex-start; gap:10px; background:#eae6d4; padding:12px 14px; border-radius:4px; }
+  .consent-row input{ margin-top:3px; width:16px; height:16px; }
+  .consent-row .c-text{ font-size:13px; color: var(--ink-soft); line-height:1.5; }
+
+  .scoreboard{ background: var(--bg-deep); border: 1px solid var(--line); border-radius: 4px; padding: 16px 18px; margin-top: 22px; display:flex; flex-wrap:wrap; gap: 18px 28px; align-items:center; font-family: var(--font-mono); }
+  .sb-item{ min-width: 70px; }
+  .sb-item .v{ font-family: var(--font-display); font-size: 26px; color: var(--accent); line-height:1; }
+  .sb-item .l{ font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--line-bright); margin-top:3px;}
+  .coach-line{ font-size:11px; color: var(--line-bright); flex-basis:100%; }
+  .coach-line b{ color: var(--card); }
+  .stat-bars{ margin-top: 16px; display:grid; gap: 9px; flex-basis:100%; }
+  .stat-row{ display:grid; grid-template-columns: 90px 1fr 34px 40px; align-items:center; gap: 10px; }
+  .stat-row .label{ font-family: var(--font-mono); font-size: 11px; color: var(--line-bright); text-transform:uppercase; letter-spacing:.5px;}
+  .stat-track{ height:6px; background: rgba(255,255,255,.08); border-radius:4px; overflow:hidden; }
+  .stat-fill{ height:100%; background: linear-gradient(90deg, var(--line-bright), var(--accent)); transition: width .5s ease; }
+  .stat-row .num{ font-family: var(--font-mono); font-size:11px; color:var(--card); text-align:right; }
+  .stat-row .delta{ font-family: var(--font-mono); font-size:11px; text-align:right; }
+  .delta.up{ color: var(--accent); }
+  .delta.down{ color: var(--clay); }
+
+  .season-tag{ font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--clay); margin-bottom: 4px; display:block; }
+  .headline{ font-family: var(--font-display); font-size: 24px; letter-spacing:.3px; margin: 2px 0 14px; }
+  .narrative{ font-size: 16px; line-height: 1.7; color: var(--ink); }
+  .opponent-card{ margin-top:14px; padding:12px 14px; background:#eae6d4; border-radius:4px; font-family: var(--font-mono); font-size:12px; display:flex; gap:18px; flex-wrap:wrap; }
+  .season-meta{ margin-top:16px; padding-top:16px; border-top: 1px dashed var(--card-line); display:flex; flex-wrap:wrap; gap: 8px 18px; font-family: var(--font-mono); font-size:12px; color: var(--ink-soft); }
+  .season-meta b{ color: var(--ink); }
+  .titles-won{ margin-top:10px; }
+  .title-pill{ display:inline-block; background: var(--accent); color: var(--accent-ink); font-family: var(--font-mono); font-size:11px; padding: 4px 9px; border-radius: 20px; margin: 3px 6px 0 0; font-weight:600; }
+  .title-pill.gold{ background: var(--gold); }
+  .title-pill.warn{ background: var(--clay); color:#fff; }
+
+  .choices{ margin-top: 22px; display:grid; gap: 10px; }
+  .choice-card{ border: 1.5px solid var(--card-line); border-radius: 4px; padding: 14px 16px; cursor:pointer; background:#fff; transition: border-color .12s ease, transform .12s ease; }
+  .choice-card:hover{ border-color: var(--ink); transform: translateX(3px); }
+  .choice-card .c-tag{ font-family: var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:.5px; color: var(--ink-soft); margin-bottom:2px; }
+  .choice-card .c-label{ font-weight:600; font-size:15px; margin-bottom:3px; }
+  .choice-card .c-desc{ font-size:13px; color: var(--ink-soft); line-height:1.4; }
+  .choice-card.risky{ border-color: var(--clay); }
+  .choice-card.risky .c-tag{ color: var(--clay); }
+
+  .loading{ display:flex; align-items:center; gap:12px; padding: 30px 0; color: var(--ink-soft); font-family: var(--font-mono); font-size:13px;}
+  .spinner{ width:18px; height:18px; border-radius:50%; border: 2.5px solid var(--card-line); border-top-color: var(--clay); animation: spin .8s linear infinite; }
+  @keyframes spin{ to{ transform: rotate(360deg); } }
+
+  .error-box{ background:#f7ded9; border:1px solid var(--clay); color:#7a231c; padding:14px 16px; border-radius:4px; font-size:14px; margin-top:16px;}
+  .footer-actions{ margin-top: 22px; display:flex; gap:10px; flex-wrap:wrap; }
+  .legend-summary{ font-size:16px; line-height:1.7; }
+  .end-titles{ margin-top: 18px; }
+  ::selection{ background: var(--accent); color: var(--accent-ink); }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="brand">
+    <h1>Tennis <span>Story</span></h1>
+    <div class="tag">Tennis &amp; Padel — joueurs et adversaires fictifs</div>
+  </div>
+  <div class="court-rule"></div>
+  <div id="root"></div>
+</div>
+
+<script>
+const root = document.getElementById('root');
+
+// ---- Fictional name pools (NOT real players) ----
+const FIRST_NAMES = ['Mateo','Lars','Kenji','Dario','Noel','Ivo','Theo','Rafi','Yannick','Bruno','Milan','Andrei','Tomas','Aleksander','Diego','Kian','Sander','Marco','Emil','Tarek','Elias','Hugo','Nikolai','Adem','Jonas'];
+const SURNAMES = ['Verhoeven','Kaczmarek','Oyelaran','Sundqvist','Marchetti','Brennan','Vidal','Halvorsen','Takahara','Roussel','Kowalczyk','Berger','Novaković','Fontaine','Lindqvist','Amaral','Delacroix','Steiner','Okonkwo','Bianchi'];
+const FIRST_NAMES_W = ['Elena','Nina','Saskia','Miho','Ines','Petra','Amara','Camille','Ingrid','Yara','Talia','Lucia','Anouk','Freya','Naomi','Sonja','Dara','Mira','Alessia','Kaia'];
+function randomOpponentName(circuit){
+  const pool = circuit === 'WTA' ? FIRST_NAMES_W : FIRST_NAMES;
+  return `${pool[Math.floor(Math.random()*pool.length)]} ${SURNAMES[Math.floor(Math.random()*SURNAMES.length)]}`;
+}
+const COACH_FIRST = ['Serge','Ana','Milo','Grete','Pavel','Rosa','Franck','Tomasz','Elise','Bram'];
+const COACH_LAST = ['Delorme','Kastner','Rivas','Solheim','Bettencourt','Wroblewski','Achterberg','Manolis'];
+function randomCoachName(){ return `${COACH_FIRST[Math.floor(Math.random()*COACH_FIRST.length)]} ${COACH_LAST[Math.floor(Math.random()*COACH_LAST.length)]}`; }
+function randomPartnerName(circuit){ return randomOpponentName(circuit); }
+
+const SPORTS = {
+  tennis: {
+    label: 'Tennis', majorLabel: 'Grand Chelem', teamCupAtp: 'Coupe Davis', teamCupWta: 'Billie Jean King Cup',
+    statLabels: { service:'Service', coupDroit:'Coup droit', revers:'Revers', physique:'Physique', mental:'Mental' },
+    doubles: false
+  },
+  padel: {
+    label: 'Padel', majorLabel: 'Titre Majeur', teamCupAtp: 'Coupe des Nations', teamCupWta: 'Coupe des Nations',
+    statLabels: { service:'Service', coupDroit:'Volée', revers:'Smash', physique:'Physique', mental:'Mental' },
+    doubles: true
+  }
+};
+
+let state = null;
+function freshState(){
+  return {
+    screen: 'start', // start | create | loading | season | tactical | error | end
+    sport: 'tennis',
+    name: '', email: '', partnerConsent: false,
+    country: '', circuit: 'ATP', hand: 'Droitier', style: null,
+    age: 16, ranking: 850, bestRanking: 850,
+    stats: { service: 32, coupDroit: 34, revers: 30, physique: 33, mental: 31 },
+    lastDelta: { service:0, coupDroit:0, revers:0, physique:0, mental:0 },
+    reputation: 50,
+    majors: 0, masters: 0, totalTitles: 0, titlesLog: [],
+    coach: randomCoachName(),
+    partner: null,
+    suspendedSeasons: 0,
+    log: [],
+    current: null,
+    pendingTactical: null,
+    errorMsg: '', lastChoiceId: null
+  };
+}
+state = freshState();
+
+const STYLES_TENNIS = [
+  {id:'fond-de-court', label:'Fond de court', desc:'Puissance et régularité depuis la ligne de fond'},
+  {id:'service-volee', label:'Service-volée', desc:'Monte au filet, joue vite et prend des risques'},
+  {id:'tout-terrain', label:'Tout-terrain', desc:'Polyvalent, s\'adapte à toutes les surfaces'},
+  {id:'contreur', label:'Contreur', desc:'Défense solide, use les adversaires'}
+];
+const STYLES_PADEL = [
+  {id:'attaquant-filet', label:'Attaquant filet', desc:'Cherche le filet, finit les points au smash'},
+  {id:'defenseur-fond', label:'Défenseur de fond', desc:'Exploite les vitres, temporise et lasse l\'adversaire'},
+  {id:'polyvalent', label:'Polyvalent', desc:'À l\'aise des deux côtés du terrain (drive et revés)'},
+  {id:'bandeja', label:'Spécialiste bandeja', desc:'Contrôle le rythme avec des amorties et bandejas précises'}
+];
+function currentStyles(){ return state.sport === 'padel' ? STYLES_PADEL : STYLES_TENNIS; }
+function sportCfg(){ return SPORTS[state.sport]; }
+
+function render(){
+  if(state.screen === 'start') return renderStart();
+  if(state.screen === 'create') return renderCreate();
+  if(state.screen === 'loading') return renderLoading();
+  if(state.screen === 'tactical') return renderTactical();
+  if(state.screen === 'season') return renderSeason();
+  if(state.screen === 'error') return renderError();
+  if(state.screen === 'end') return renderEnd();
+}
+
+function renderStart(){
+  root.innerHTML = `
+    <div class="panel">
+      <h2>Écrivez votre légende</h2>
+      <p class="lede">De 16 ans jusqu'à la retraite — saison après saison, générée par IA</p>
+      <p class="start-copy">Choisissez votre sport (tennis ou padel), créez votre joueur, puis laissez chaque saison se dérouler : tournois, blessures, rivalités, médias. Vos choix orientent l'histoire — y compris les décisions tactiques en finale — et l'IA écrit ce qui se passe sur le terrain. Tous les adversaires, coachs et partenaires sont entièrement fictifs.</p>
+      <div class="field" style="margin-top:20px;">
+        <label>Sport</label>
+        <div class="choice-grid">
+          <div class="chip ${state.sport==='tennis'?'selected':''}" data-sport="tennis"><strong>🎾 Tennis</strong><small>Simple, sur le circuit ATP/WTA</small></div>
+          <div class="chip ${state.sport==='padel'?'selected':''}" data-sport="padel"><strong>🏓 Padel</strong><small>En double, avec un(e) partenaire</small></div>
+        </div>
+      </div>
+      <div class="footer-actions"><button class="btn" id="start-btn">Commencer ma carrière</button></div>
+    </div>
+  `;
+  document.querySelectorAll('[data-sport]').forEach(el=> el.onclick = ()=>{ state.sport = el.dataset.sport; state.style=null; render(); });
+  document.getElementById('start-btn').onclick = () => { state.screen='create'; render(); };
+}
+
+function renderCreate(){
+  const cfg = sportCfg();
+  root.innerHTML = `
+    <div class="panel">
+      <h2>Créez votre joueur ${cfg.label==='Padel'?'de padel':'de tennis'}</h2>
+      <p class="lede">Étape 1 — vos origines</p>
+      <div class="row-2">
+        <div class="field"><label>Prénom &amp; nom</label><input type="text" id="name-input" placeholder="ex. Léo Bertrand" value="${state.name}"></div>
+        <div class="field"><label>Pays</label><input type="text" id="country-input" placeholder="ex. France" value="${state.country}"></div>
+      </div>
+      <div class="field">
+        <label>Email (optionnel)</label>
+        <input type="email" id="email-input" placeholder="vous@exemple.com" value="${state.email}">
+        <div class="hint">Utilisé uniquement si vous cochez la case ci-dessous.</div>
+      </div>
+      <div class="consent-row">
+        <input type="checkbox" id="consent-input" ${state.partnerConsent?'checked':''}>
+        <div class="c-text">J'accepte de recevoir par email des offres et communications de partenaires ${cfg.label.toLowerCase()} sélectionnés par Tennis Story. Vous pourrez vous désinscrire à tout moment.</div>
+      </div>
+      <div class="field" style="margin-top:18px;">
+        <label>Circuit</label>
+        <div class="choice-grid">
+          ${['Masculin','Féminin'].map((c,i)=>{ const val = i===0?'ATP':'WTA'; return `<div class="chip ${state.circuit===val?'selected':''}" data-circuit="${val}"><strong>${c}</strong></div>`; }).join('')}
+        </div>
+      </div>
+      <div class="field">
+        <label>Main</label>
+        <div class="choice-grid">
+          ${['Droitier','Gaucher'].map(h=>`<div class="chip ${state.hand===h?'selected':''}" data-hand="${h}"><strong>${h}</strong></div>`).join('')}
+        </div>
+      </div>
+      <div class="field">
+        <label>Style de jeu</label>
+        <div class="choice-grid">
+          ${currentStyles().map(s=>`<div class="chip ${state.style===s.id?'selected':''}" data-style="${s.id}"><strong>${s.label}</strong><small>${s.desc}</small></div>`).join('')}
+        </div>
+      </div>
+      <div class="footer-actions">
+        <button class="btn secondary" id="back-btn">Retour</button>
+        <button class="btn" id="create-btn" ${(!state.style)?'disabled':''}>Débuter à 16 ans</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('name-input').oninput = e => state.name = e.target.value;
+  document.getElementById('country-input').oninput = e => state.country = e.target.value;
+  document.getElementById('email-input').oninput = e => state.email = e.target.value;
+  document.getElementById('consent-input').onchange = e => state.partnerConsent = e.target.checked;
+  document.querySelectorAll('[data-circuit]').forEach(el=> el.onclick = ()=>{ state.circuit = el.dataset.circuit; render(); });
+  document.querySelectorAll('[data-hand]').forEach(el=> el.onclick = ()=>{ state.hand = el.dataset.hand; render(); });
+  document.querySelectorAll('[data-style]').forEach(el=> el.onclick = ()=>{ state.style = el.dataset.style; render(); });
+  document.getElementById('back-btn').onclick = ()=>{ state.screen='start'; render(); };
+  document.getElementById('create-btn').onclick = async ()=>{
+    if(!state.name) state.name = 'Joueur Anonyme';
+    if(!state.country) state.country = 'France';
+    if(state.sport === 'padel') state.partner = randomPartnerName(state.circuit);
+    await saveLeadIfConsented();
+    runSeason(null);
+  };
+}
+
+async function saveLeadIfConsented(){
+  if(!state.partnerConsent || !state.email) return;
+  try{
+    await fetch('/api/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: state.name, email: state.email, sport: state.sport })
+    });
+  }catch(e){
+    console.warn('Lead capture failed (non-blocking):', e);
+  }
+}
+
+function renderLoading(){
+  root.innerHTML = `<div class="panel"><div class="loading"><div class="spinner"></div> L'IA écrit la saison ${state.age} ans...</div></div>`;
+}
+
+function renderError(){
+  root.innerHTML = `
+    <div class="panel">
+      <h2>Un problème est survenu</h2>
+      <div class="error-box">${state.errorMsg}</div>
+      <div class="footer-actions"><button class="btn" id="retry-btn">Réessayer</button></div>
+    </div>
+  `;
+  document.getElementById('retry-btn').onclick = ()=> {
+    if(state.pendingTactical) resolveTactical(state.lastTacticId || null);
+    else runSeason(state.lastChoiceId ? {id: state.lastChoiceId, label:'', description:''} : null);
+  };
+}
+
+function deltaTag(v){ if(!v) return ''; return `<span class="delta ${v>0?'up':'down'}">${v>0?'+':''}${v}</span>`; }
+function statBar(label, val, delta){
+  return `<div class="stat-row"><div class="label">${label}</div><div class="stat-track"><div class="stat-fill" style="width:${Math.min(100,val)}%"></div></div><div class="num">${val}</div><div>${deltaTag(delta)}</div></div>`;
+}
+
+function scoreboardHTML(){
+  const d = state.lastDelta || {};
+  const cfg = sportCfg();
+  const teamCupLabel = state.circuit === 'WTA' ? cfg.teamCupWta : cfg.teamCupAtp;
+  return `
+    <div class="scoreboard">
+      <div class="sb-item"><div class="v">${state.age}</div><div class="l">Âge</div></div>
+      <div class="sb-item"><div class="v">#${state.ranking}</div><div class="l">Classement</div></div>
+      <div class="sb-item"><div class="v">${state.majors}</div><div class="l">${cfg.majorLabel}</div></div>
+      <div class="sb-item"><div class="v">${state.masters}</div><div class="l">Masters 1000</div></div>
+      <div class="sb-item"><div class="v">${state.totalTitles}</div><div class="l">Titres pro</div></div>
+      <div class="sb-item"><div class="v">${state.reputation}</div><div class="l">Réputation</div></div>
+      <div class="coach-line">Coach : <b>${state.coach}</b>${state.partner ? ` · Partenaire : <b>${state.partner}</b>` : ''}${state.suspendedSeasons>0 ? ' · <b style="color:#e08a80">Suspendu(e) — contrôle antidopage positif</b>' : ''}</div>
+      <div class="stat-bars">
+        ${statBar(cfg.statLabels.service, state.stats.service, d.service)}
+        ${statBar(cfg.statLabels.coupDroit, state.stats.coupDroit, d.coupDroit)}
+        ${statBar(cfg.statLabels.revers, state.stats.revers, d.revers)}
+        ${statBar(cfg.statLabels.physique, state.stats.physique, d.physique)}
+        ${statBar(cfg.statLabels.mental, state.stats.mental, d.mental)}
+      </div>
+    </div>
+  `;
+}
+
+function renderTactical(){
+  const c = state.pendingTactical;
+  root.innerHTML = `
+    ${scoreboardHTML()}
+    <div class="panel tactical">
+      <span class="season-tag">Moment décisif · ${c.tournamentName || c.tournamentHighlight}</span>
+      <h2 class="headline">${c.tournamentHighlight}</h2>
+      <div class="narrative">${c.narrative}</div>
+      ${c.opponent ? `
+        <div class="opponent-card">
+          <div><b>Adversaire${sportCfg().doubles?'s':''} :</b> ${c.opponent.fullName}</div>
+          <div><b>Classement :</b> #${c.opponent.ranking || '?'}</div>
+          <div><b>Style :</b> ${c.opponent.playStyle || '—'}</div>
+        </div>` : ''}
+      <div class="choices">
+        ${c.tacticalOptions.map(t => `
+          <div class="choice-card" data-tactic="${t.id}">
+            <div class="c-tag">Choix tactique</div>
+            <div class="c-label">${t.label}</div>
+            <div class="c-desc">${t.description}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  document.querySelectorAll('[data-tactic]').forEach(el=>{ el.onclick = ()=>{ resolveTactical(el.dataset.tactic); }; });
+}
+
+function renderSeason(){
+  const c = state.current;
+  const cfg = sportCfg();
+  root.innerHTML = `
+    ${scoreboardHTML()}
+    <div class="panel">
+      <span class="season-tag">Saison ${state.age} ans · ${cfg.label} · ${state.circuit === 'WTA' ? 'Féminin' : 'Masculin'} · ${state.country}</span>
+      <h2 class="headline">${c.tournamentHighlight || 'Nouvelle saison'}</h2>
+      <div class="narrative">${c.narrative}</div>
+      ${c.matchScore ? `<div class="season-meta"><span><b>Score :</b> ${c.matchScore}</span></div>` : ''}
+      ${c.titles && c.titles.length ? `<div class="titles-won">${c.titles.map(t=>`<span class="title-pill ${new RegExp(cfg.majorLabel,'i').test(t)?'gold':''}">🏆 ${t}</span>`).join('')}</div>` : ''}
+      ${state.suspendedSeasons>0 ? `<div class="titles-won"><span class="title-pill warn">⛔ Suspendu(e) ${state.suspendedSeasons} saison(s) restante(s)</span></div>` : ''}
+      <div class="season-meta">
+        ${c.majorResult ? `<span><b>${cfg.majorLabel} :</b> ${c.majorResult}</span>`:''}
+        ${c.teamCup ? `<span><b>${state.circuit==='WTA'?cfg.teamCupWta:cfg.teamCupAtp} :</b> ${c.teamCup}</span>`:''}
+        ${c.majorEvent ? `<span><b>Événement :</b> ${c.majorEvent}</span>`:''}
+      </div>
+      <div class="choices">
+        ${c.choices.map(ch => `
+          <div class="choice-card ${ch.category==='Dopage'?'risky':''}" data-choice="${ch.id}">
+            <div class="c-tag">${ch.category || ''}</div>
+            <div class="c-label">${ch.label}</div>
+            <div class="c-desc">${ch.description}</div>
+          </div>
+        `).join('')}
+        <div class="choice-card" data-choice="__retire__" style="border-color:var(--clay);">
+          <div class="c-tag" style="color:var(--clay);">Fin de carrière</div>
+          <div class="c-label" style="color:var(--clay);">Prendre sa retraite</div>
+          <div class="c-desc">Mettre fin à la carrière ici et voir votre palmarès final</div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.querySelectorAll('[data-choice]').forEach(el=>{
+    el.onclick = ()=>{
+      const choiceId = el.dataset.choice;
+      if(choiceId === '__retire__'){ finishCareer(); return; }
+      const chosen = c.choices.find(x=>x.id===choiceId);
+      state.log.push(`${state.age} ans: ${c.tournamentHighlight}`);
+      state.age += 1;
+      if(state.suspendedSeasons > 0) state.suspendedSeasons -= 1;
+      if(state.age > 39){ finishCareer(); return; }
+      runSeason(chosen);
+    };
+  });
+}
+
+function renderEnd(){
+  const cfg = sportCfg();
+  root.innerHTML = `
+    <div class="panel">
+      <h2>Fin de carrière</h2>
+      <p class="lede">${state.name} — ${state.country} — retraite à ${state.age} ans</p>
+      <div class="legend-summary">${state.current && state.current.legendSummary ? state.current.legendSummary : "Merci d'avoir joué votre carrière jusqu'au bout."}</div>
+      <div class="end-titles">
+        <div class="title-pill gold">🏆 ${state.majors} ${cfg.majorLabel}</div>
+        <div class="title-pill">🏆 ${state.masters} Masters 1000</div>
+        <div class="title-pill">🏆 ${state.totalTitles} titres au total</div>
+        <div class="title-pill">📈 Meilleur classement : #${state.bestRanking || state.ranking}</div>
+        <div class="title-pill">🤝 Réputation finale : ${state.reputation}/100</div>
+      </div>
+      <div class="footer-actions"><button class="btn" id="restart-btn">Nouvelle carrière</button></div>
+    </div>
+  `;
+  document.getElementById('restart-btn').onclick = ()=>{ state = freshState(); render(); };
+}
+
+function applyStatChanges(delta, repDelta){
+  const applied = { service:0, coupDroit:0, revers:0, physique:0, mental:0 };
+  if(delta){
+    for(const k of ['service','coupDroit','revers','physique','mental']){
+      if(typeof delta[k] === 'number'){
+        const before = state.stats[k];
+        state.stats[k] = Math.max(5, Math.min(99, state.stats[k] + delta[k]));
+        applied[k] = state.stats[k] - before;
+      }
+    }
+  }
+  if(typeof repDelta === 'number'){ state.reputation = Math.max(0, Math.min(100, state.reputation + repDelta)); }
+  state.lastDelta = applied;
+}
+
+function buildSystemPrompt(){
+  const cfg = sportCfg();
+  const sportContext = state.sport === 'padel'
+    ? `Le sport est le PADEL, qui se joue exclusivement en DOUBLE (une paire fixe). Le joueur a un(e) partenaire fixe fictif(ve) nommé(e) "${state.partner}". Le circuit professionnel s'appelle "Premier Padel" avec des tournois Major, P1 et P2. Les décisions tactiques concernent la paire (positionnement, qui prend le smash, communication).`
+    : `Le sport est le TENNIS, qui se joue en simple. Calendrier réel : Open d'Australie, Roland-Garros, Wimbledon, US Open (= "${cfg.majorLabel}"), Masters 1000, ATP/WTA Finals, tournois 250/500, Challengers, ${state.circuit==='WTA'?cfg.teamCupWta:cfg.teamCupAtp}.`;
+
+  return `Tu es le narrateur d'un jeu de simulation de carrière sportive en français ("Tennis Story"). Tu écris la suite de la carrière d'un(e) joueur/joueuse FICTIF(VE), de façon vivante, réaliste et parfois dramatique.
+
+${sportContext}
+
+RÈGLE ABSOLUE SUR LES NOMS : tous les adversaires, coachs, partenaires, journalistes et personnages mentionnés doivent être ENTIÈREMENT FICTIFS. N'utilise JAMAIS le nom, même partiel ou déguisé, d'un(e) joueur(se), coach ou personnalité réel(le), passé(e) ou présent(e). Invente des noms originaux à consonance internationale variée.
+
+Règles générales :
+- Réponds UNIQUEMENT avec un objet JSON valide, sans texte avant/après, sans balises markdown.
+- Ton journalistique, immersif, parfois ironique, jamais absurde : progression crédible par rapport au classement et aux stats actuelles. Pic de forme vers 24-30 ans, déclin après 33 ans.
+- Fais varier les thèmes des choix : entraînement technique, calendrier de tournois, interview dans un grand média (affecte réputation et mental), engagement caritatif / collection de vêtements caritatifs (améliore la réputation), relation avec le coach (garder, recadrer, ou virer pour changer${cfg.doubles ? ', changer de partenaire' : ''}), participation à la ${state.circuit==='WTA'?cfg.teamCupWta:cfg.teamCupAtp}, et occasionnellement une tentation de dopage.
+- Le choix "Dopage" doit être formulé sobrement (ex: "Suivre le programme controversé d'un préparateur physique") SANS aucun détail sur des substances, dosages ou méthodes réelles. S'il est choisi : gain de stats à court terme, puis risque réel dans une saison suivante de contrôle positif → suspension ("suspensionSeasons" >0), chute de réputation et de classement. Jamais sans conséquence.
+- "statChanges" : ajustements entiers entre -4 et +4 pour service, coupDroit, revers, physique, mental (le physique et le mental doivent bien refléter fatigue, pression médiatique, grands matchs).
+- "reputationChange" : entier entre -10 et +10.
+- "titles" : titres remportés cette saison (vide si aucun), formatés "Nom du tournoi (catégorie)".
+- "teamCup" : courte phrase sur la participation à la compétition par équipes cette saison, ou null.
+- "choices" : exactement 3 choix variés pour la saison suivante, chacun avec "id" (a/b/c), "category" (ex: "Entraînement","Média","Caritatif","Coach"${cfg.doubles?',"Partenaire"':''},"Dopage","Compétition par équipes"), "label" court, "description" d'une phrase.
+
+MOMENT TACTIQUE — TRÈS IMPORTANT : si le joueur atteint une FINALE de ${cfg.majorLabel}, de Masters 1000 (ou Major Premier Padel), tu dois D'ABORD répondre avec phase="tactical" : raconte le parcours jusqu'à la veille de cette finale (sans résultat), présente l'adversaire${cfg.doubles?' (la paire adverse)':''} fictif(ve), et propose 3 "tacticalOptions" de tactique pour ce match précis. Ne mets alors ni statChanges, ni titles, ni choices, ni majorResult.
+
+Format JSON phase "tactical" :
+{ "phase":"tactical", "narrative":"90-150 mots menant à la finale", "tournamentHighlight":"ex: Finale de Roland-Garros", "tournamentName":"Roland-Garros", "opponent":{"fullName":"Prénom Nom fictif${cfg.doubles?' / Prénom Nom fictif (paire)':''}","ranking":12,"playStyle":"descriptif court"}, "tacticalOptions":[{"id":"a","label":"...","description":"..."},{"id":"b","label":"...","description":"..."},{"id":"c","label":"...","description":"..."}] }
+
+Format JSON phase "final" (saison normale OU résolution d'une finale) :
+{ "phase":"final", "narrative":"90-160 mots", "tournamentHighlight":"titre court", "matchScore":"score si pertinent sinon null", "statChanges":{"service":0,"coupDroit":0,"revers":0,"physique":0,"mental":0}, "reputationChange":0, "titles":[], "majorResult":null, "teamCup":null, "majorEvent":null, "suspensionSeasons":0, "newCoachName":null, "newPartnerName":null, "choices":[{"id":"a","category":"...","label":"...","description":"..."},{"id":"b","category":"...","label":"...","description":"..."},{"id":"c","category":"...","label":"...","description":"..."}] }
+
+Ne déclenche "tactical" que quand le niveau du joueur rend une grande finale crédible — la plupart des saisons vont directement en phase "final".`;
+}
+
+function buildUserPrompt(chosen){
+  const recentLog = state.log.slice(-5).join(' | ') || 'Début de carrière, aucune saison jouée.';
+  const cfg = sportCfg();
+  return `État actuel du joueur :
+- Sport : ${cfg.label}
+- Nom : ${state.name}
+- Pays : ${state.country}
+- Circuit : ${state.circuit === 'WTA' ? 'Féminin' : 'Masculin'}
+- Main : ${state.hand}
+- Style de jeu : ${currentStyles().find(s=>s.id===state.style)?.label || state.style}
+${state.partner ? `- Partenaire de double : ${state.partner}` : ''}
+- Âge : ${state.age} ans
+- Classement actuel : #${state.ranking}
+- Réputation : ${state.reputation}/100
+- Coach actuel : ${state.coach}
+- Statut dopage : ${state.suspendedSeasons>0 ? `suspendu(e), ${state.suspendedSeasons} saison(s) restante(s)` : 'aucune suspension'}
+- Stats : ${cfg.statLabels.service} ${state.stats.service}, ${cfg.statLabels.coupDroit} ${state.stats.coupDroit}, ${cfg.statLabels.revers} ${state.stats.revers}, ${cfg.statLabels.physique} ${state.stats.physique}, ${cfg.statLabels.mental} ${state.stats.mental} (sur 99)
+- ${cfg.majorLabel} remportés : ${state.majors}
+- Masters 1000 remportés : ${state.masters}
+- Titres pro au total : ${state.totalTitles}
+- Historique récent : ${recentLog}
+${chosen ? `- Choix fait pour cette saison : "${chosen.label}" (${chosen.description}, catégorie: ${chosen.category||''})` : '- C\'est la toute première saison de la carrière (16 ans, débuts sur le circuit junior).'}
+
+Génère la saison ${state.age} ans de cette carrière au format JSON demandé (phase "tactical" ou "final" selon la situation).`;
+}
+
+function buildTacticalResolutionPrompt(tacticId){
+  const t = state.pendingTactical;
+  const tactic = t.tacticalOptions.find(o=>o.id===tacticId);
+  const cfg = sportCfg();
+  return `Contexte de la finale en cours : ${t.tournamentHighlight} face à ${t.opponent ? t.opponent.fullName : 'un adversaire fictif'}.
+Récit jusqu'ici : ${t.narrative}
+Tactique choisie par le joueur pour ce match : "${tactic.label}" (${tactic.description})
+
+État du joueur avant ce match :
+- Stats : ${cfg.statLabels.service} ${state.stats.service}, ${cfg.statLabels.coupDroit} ${state.stats.coupDroit}, ${cfg.statLabels.revers} ${state.stats.revers}, ${cfg.statLabels.physique} ${state.stats.physique}, ${cfg.statLabels.mental} ${state.stats.mental} (sur 99)
+- Réputation : ${state.reputation}/100
+- Classement : #${state.ranking}
+
+Résous ce match de façon crédible selon la tactique choisie, le niveau du joueur et celui de l'adversaire fictif, puis termine le reste de la saison. Réponds au format JSON "phase":"final".`;
+}
+
+async function callClaude(system, userPrompt, maxTokens){
+  const response = await fetch("/api/generate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ max_tokens: maxTokens || 1000, system: system, messages: [{ role: "user", content: userPrompt }] })
+  });
+  const data = await response.json();
+  const textBlock = (data.content || []).find(b => b.type === 'text');
+  if(!textBlock) throw new Error("Réponse vide de l'IA.");
+  let clean = textBlock.text.trim().replace(/^```json/i,'').replace(/^```/,'').replace(/```$/,'').trim();
+  return JSON.parse(clean);
+}
+
+function applyFinalPayload(parsed){
+  applyStatChanges(parsed.statChanges, parsed.reputationChange);
+  const cfg = sportCfg();
+  if(parsed.titles && parsed.titles.length){
+    state.totalTitles += parsed.titles.length;
+    state.titlesLog.push(...parsed.titles);
+    const majorRe = new RegExp(cfg.majorLabel === 'Grand Chelem' ? "grand chelem|open d'australie|roland-garros|wimbledon|us open" : cfg.majorLabel, 'i');
+    parsed.titles.forEach(t=>{
+      if(majorRe.test(t)) state.majors += 1;
+      else if(/masters 1000/i.test(t)) state.masters += 1;
+    });
+  }
+  if(typeof parsed.suspensionSeasons === 'number' && parsed.suspensionSeasons > 0){
+    state.suspendedSeasons = Math.max(state.suspendedSeasons, parsed.suspensionSeasons);
+  }
+  if(parsed.newCoachName){ state.coach = parsed.newCoachName; }
+  if(parsed.newPartnerName && state.partner){ state.partner = parsed.newPartnerName; }
+  if(state.ranking < state.bestRanking) state.bestRanking = state.ranking;
+  state.current = parsed;
+  state.pendingTactical = null;
+}
+
+async function runSeason(chosen){
+  state.lastChoiceId = chosen ? chosen.id : null;
+  state.screen = 'loading';
+  render();
+  try{
+    const parsed = await callClaude(buildSystemPrompt(), buildUserPrompt(chosen), 1000);
+    if(parsed.phase === 'tactical'){
+      if(!parsed.opponent) parsed.opponent = { fullName: randomOpponentName(state.circuit), ranking: Math.floor(Math.random()*30)+1, playStyle:'Style équilibré' };
+      state.pendingTactical = parsed;
+      state.screen = 'tactical';
+      render();
+    } else {
+      applyFinalPayload(parsed);
+      state.screen = 'season';
+      render();
+    }
+  }catch(err){
+    console.error(err);
+    state.errorMsg = "Impossible de générer la saison (" + (err.message || 'erreur inconnue') + "). Réessaie.";
+    state.screen = 'error';
+    render();
+  }
+}
+
+async function resolveTactical(tacticId){
+  state.lastTacticId = tacticId;
+  state.screen = 'loading';
+  render();
+  try{
+    const parsed = await callClaude(buildSystemPrompt(), buildTacticalResolutionPrompt(tacticId), 1000);
+    applyFinalPayload(parsed);
+    state.screen = 'season';
+    render();
+  }catch(err){
+    console.error(err);
+    state.errorMsg = "Impossible de résoudre le match (" + (err.message || 'erreur inconnue') + "). Réessaie.";
+    state.screen = 'error';
+    render();
+  }
+}
+
+function finishCareer(){
+  (async ()=>{
+    state.screen = 'loading';
+    render();
+    try{
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          max_tokens: 400,
+          system: "Tu écris en français un court paragraphe (60-100 mots) résumant, comme un article hommage, la carrière sportive fictive terminée d'un(e) joueur(se), ton élogieux et journalistique. Réponds uniquement avec le texte, sans JSON ni guillemets.",
+          messages: [{ role:"user", content: `Résume la carrière de ${state.name} (${state.country}, ${sportCfg().label}) : retraite à ${state.age} ans, ${state.majors} ${sportCfg().majorLabel}, ${state.masters} Masters 1000, ${state.totalTitles} titres au total, meilleur classement #${state.bestRanking || state.ranking}, réputation finale ${state.reputation}/100. Historique : ${state.log.slice(-6).join(' | ')}` }]
+        })
+      });
+      const data = await response.json();
+      const textBlock = (data.content || []).find(b => b.type === 'text');
+      state.current = { legendSummary: textBlock ? textBlock.text.trim() : '' };
+    }catch(e){
+      state.current = { legendSummary: '' };
+    }
+    state.screen = 'end';
+    render();
+  })();
+}
+
+render();
+</script>
+</body>
+</html>
